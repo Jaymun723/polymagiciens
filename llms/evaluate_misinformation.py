@@ -13,7 +13,7 @@ for idx, row in df.iterrows():
     result = row["misinformation"]
     total += 1
     bon += (evaluation == result)
-    print(f"Evaluation: {evaluation}, Result: {result}, Real result: {(1-n)/100}, Score: {bon/total}")
+    print(f"Evaluation: {evaluation}, Result: {result}, Real result: {1-n/100}, Score: {bon/total}")
 
 df["score"] = df.apply(
     lambda row: abs(
