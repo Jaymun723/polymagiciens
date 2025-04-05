@@ -1,0 +1,101 @@
+from mistralai import Mistral
+from mistralai.models import  UserMessage, SystemMessage
+import os
+import wikipedia
+import json
+from datetime import datetime
+import json
+from mistralai import ToolMessage
+
+## Step 1: Initialize the Mistral client
+
+client = Mistral(
+    api_key=os.environ["ZPwkfGmpEB8H9PgUQw5vLZ1jzFBvXuET"],
+)
+
+def post_to_grade(post,date):
+    '''
+    Returns a reliability grade to a given post that was posted at a given date
+    '''
+    #build the query for the Mistral Agent 
+    query = "Date : "+ date + "\n Post : " + post
+    
+    #Add the user message to the chat_history
+    chat_history = [
+        SystemMessage(content="The input is a post (from a social media : could be Facebook or Reddit etc) and the time and date it was posted at, and the aim is to verify its reliability. You formulate one or multiple facts that you want to know and that can be searched on wikipedia to find information that should help determine the veracity and reliability of the post. The facts you ask for should be independent of the data you already have access to and independent of the post in the sense that the questions will be web searches. The list of facts you want should be given without explanation or context in the form of a wikipedia search (not any sentence except the facts themselves, so no sentence at all before those facts) and should be in a format that can be read by python. Use the least facts possible necessary to check the information correctly without missing any important point (given the date at which the post was written) There should be a semicolon between every fact that you want to check, and there should be no quotation marks"),
+        UserMessage(content=query),
+    ]
+
+    #complete with the result of the wikipedia searches
+    search = chat_history.split(';')
+    additional_info = ""
+    for s in search : 
+        additional_info += wiki_search(s) + " "
+
+    #final as to a Mistral agent for a reliability grade 
+
+    return int(answer)
+
+def wiki_search(query):
+
+# Step 1: Initialize the Mistral client
+chat_history = [
+    SystemMessage(content="You are a helpful assistant that can search the web for information. Use context to answer the question."),
+    UserMessage(content=query),
+]
+
+# Step 2 : Define the function calling tool to search Wikipedia
+web_search_tool = {
+    "type": "function",
+    "function": {
+        "name": "web_search",
+        "description": "Search the web for a query for which you do not know the answer",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Query to search the web in keyword form.",
+                }
+            },
+            "required": ["query"],
+        },
+    },
+}
+
+
+
+chat_response = client.chat.complete(
+    model="mistral-large-latest",
+    messages=chat_history,
+    tools=[web_search_tool],
+    temperature = 0.05
+)
+
+
+if hasattr(chat_response.choices[0].message, 'tool_calls'):
+    tool_call = chat_response.choices[0].message.tool_calls[0]
+    chat_history.append(chat_response.choices[0].message)
+    print(tool_call)
+else:
+    print("No tool call found in the response")
+
+#Step 3: Define Method to Search Wikipedia Associated with the Tool
+
+def get_wikipedia_search(query: str) -> str:
+    """
+    Search Wikipedia for a query and return the results in a specific format.
+    """
+    result = wikipedia.search(query, results = 5)
+    data={}
+    for i, res in enumerate(result):
+        pg= wikipedia.page(res, auto_suggest=False)
+        data[i]={
+            "url": pg.url,
+            "title": pg.title,
+            "snippets": [pg.summary.split('.')],
+            "description": None,
+            "date": datetime.now().isoformat(),
+            "source": "wikipedia"
+        }
+    return json.dumps(data, indent=2)
