@@ -1,12 +1,18 @@
 import pandas as pd
-from Fact_chek_v1 import post_to_grade
+from Fact_check_v2 import post_to_grade
+
+import pandas as pd
 
 df = pd.read_csv("combined_dataset.csv")
 
+bon = 0
+total = 0
 for idx, row in df.iterrows():
-    evalation = 1 - post_to_grade(row["title"] + row["text"], row["date"]) / 100
+    evaluation = 1 if ((1 - post_to_grade(row["title"] , row["text"], row["date"]) / 100)>0.2) else 0
     result = row["misinformation"]
-    print(f"Evaluation: {evalation}, Result: {result}")
+    total += 1
+    bon += (evaluation == result)
+    print(f"Evaluation: {evaluation}, Result: {result}, Score: {bon/total}")
 
 df["score"] = df.apply(
     lambda row: abs(
