@@ -1,4 +1,4 @@
-from graph import RedditDB
+from graph.pg_reddit_driver import RedditDB
 from graph.reddit import scrap_post
 from llms import compute_post_score, is_post_intresting
 

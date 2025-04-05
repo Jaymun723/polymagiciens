@@ -1,7 +1,7 @@
 import asyncpraw
 import psycopg
 from psycopg import sql
-from pg_reddit_driver import RedditDB
+from graph.pg_reddit_driver import RedditDB
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
