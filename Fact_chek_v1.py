@@ -35,6 +35,7 @@ def post_to_grade(post,date):
 
     #complete with the result of the wikipedia searches
     search = chat_response.choices[0].message.content
+    print(search)
     facts = [fact.strip() for fact in search.split(";") if fact.strip()]
 
     additional_info = "\n Additional information : "
