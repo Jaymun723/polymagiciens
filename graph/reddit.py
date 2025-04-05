@@ -156,7 +156,7 @@ class RedditWrapper:
             comment.upvotes,
         )
 
-    def treat_user(self, u, depth, n_posts=2):
+    def treat_user(self, u, depth, n_posts=100):
         if depth < 0:
             return
 
@@ -168,7 +168,7 @@ class RedditWrapper:
         for s in u.submissions.top(limit=n_posts):
             self.treat_submission(s, depth - 1)
 
-    def treat_submission(self, s, depth, n_comments=1):
+    def treat_submission(self, s, depth, n_comments=100):
         if depth < 0:
             return
 
