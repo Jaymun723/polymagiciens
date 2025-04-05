@@ -52,7 +52,8 @@ class RedditDB:
             """
             CREATE TABLE IF NOT EXISTS "User" (
                 user_id TEXT PRIMARY KEY,
-                user_name TEXT NOT NULL
+                user_name TEXT NOT NULL,
+                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100)
             );
         """
         )
@@ -63,7 +64,9 @@ class RedditDB:
                 author_id TEXT REFERENCES "User"(user_id),
                 title TEXT NOT NULL,
                 content TEXT,
-                upvotes INTEGER DEFAULT 0
+                upvotes INTEGER DEFAULT 0,
+                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
+                treated BOOLEAN DEFAULT FALSE
             );
         """
         )
@@ -74,34 +77,43 @@ class RedditDB:
                 author_id TEXT REFERENCES "User"(user_id),
                 post_id TEXT REFERENCES "Post"(post_id),
                 content TEXT NOT NULL,
-                upvotes INTEGER DEFAULT 0
+                upvotes INTEGER DEFAULT 0,
+                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
+                treated BOOLEAN DEFAULT FALSE
             );
         """
         )
         self.conn.commit()
         print("Tables ensured.")
 
-    def add_user(self, user_id: str, user_name: str):
+    def add_user(self, user_id: str, user_name: str, score: int = 0):
         self.cur.execute(
             """
-            INSERT INTO "User" (user_id, user_name)
-            VALUES (%s, %s)
+            INSERT INTO "User" (user_id, user_name, score)
+            VALUES (%s, %s, %s)
             ON CONFLICT (user_id) DO NOTHING;
         """,
-            (user_id, user_name),
+            (user_id, user_name, score),
         )
         self.conn.commit()
 
     def add_post(
-        self, post_id: str, author_id: str, title: str, content: str, upvotes: int = 0
+        self,
+        post_id: str,
+        author_id: str,
+        title: str,
+        content: str,
+        upvotes: int = 0,
+        score: int = 0,
+        treated: bool = False,
     ):
         self.cur.execute(
             """
-            INSERT INTO "Post" (post_id, author_id, title, content, upvotes)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO "Post" (post_id, author_id, title, content, upvotes, score, treated)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (post_id) DO NOTHING;
         """,
-            (post_id, author_id, title, content, upvotes),
+            (post_id, author_id, title, content, upvotes, score, treated),
         )
         self.conn.commit()
 
@@ -112,14 +124,16 @@ class RedditDB:
         post_id: str,
         content: str,
         upvotes: int = 0,
+        score: int = 0,
+        treated: bool = False,
     ):
         self.cur.execute(
             """
-            INSERT INTO "Comment" (comment_id, author_id, post_id, content, upvotes)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO "Comment" (comment_id, author_id, post_id, content, upvotes, score, treated)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (comment_id) DO NOTHING;
         """,
-            (comment_id, author_id, post_id, content, upvotes),
+            (comment_id, author_id, post_id, content, upvotes, score, treated),
         )
         self.conn.commit()
 
@@ -133,6 +147,32 @@ class RedditDB:
 
     def get_post(self, post_id: str):
         self.cur.execute("""SELECT * FROM "Post" WHERE post_id = %s""", (post_id,))
+        return self.cur.fetchone()
+
+    def get_posts_comments(self, post_id: str):
+        self.cur.execute(
+            """SELECT * FROM "Comment" WHERE post_id = %s""",
+            (post_id,),
+        )
+        return self.cur.fetchall()
+
+    def get_posts_comments_count(self, post_id: str) -> int:
+        self.cur.execute(
+            """SELECT count(*) FROM "Comment" WHERE post_id = %s""", (post_id,)
+        )
+        return self.cur.fetchone()
+
+    def get_most_commented_unprocessed_post(self, limit=1):
+        self.cur.execute(
+            """SELECT p.*
+            FROM "Post" p
+            LEFT JOIN "Comment" c ON p.post_id = c.post_id
+            WHERE p.treated = FALSE
+            GROUP BY p.post_id
+            ORDER BY COUNT(c.comment_id) DESC
+            LIMIT %s;""",
+            (limit,),
+        )
         return self.cur.fetchone()
 
     def get_posts(self):
@@ -159,15 +199,3 @@ class RedditDB:
 
 if __name__ == "__main__":
     db = RedditDB()
-    db.add_user("u1", "alice")
-    db.add_post("p1", "u1", "First Post", "This is content", 12)
-    db.add_comment("c1", "u1", "p1", "Nice one!", 3)
-
-    print(db.get_user("u1"))
-    print(db.get_users())
-
-    print(db.get_post("p1"))
-    print(db.get_posts())
-
-    print(db.get_comment("c1"))
-    print(db.get_users())

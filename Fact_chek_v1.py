@@ -45,9 +45,10 @@ def post_to_grade(post,date):
     #final ask to a Mistral agent for a reliability grade 
 
     final_query = query + "\n" + additional_info
+    print(final_query)
 
     chat_history = [
-        SystemMessage(content="The input is a reddit post, poster by a user, at a given time, and some additional relevant information related to the content of the post. Identify the event or fact talked about in the post, and the time and date it was posted at, then use the additional information given - that is about the same subject at a similar time and date - to verify whether the information is true at the given date and time, or at least the probability for it to be true. The output you give is a grade between 0 and 100 (and only a grades ince the output will then be used as an int) and represents the reliability of the post (and only the post, not the additional information that should be considered true without fact checking needed) that was given as an input - 0 is not reliable at all (so the information is false) and 100 is very reliable (so a true information), in between are the information vague with a certain probability to be true. The output is the score and only the score without any sentence (no string) "),
+        SystemMessage(content="The input is a reddit post, poster by a user, at a given time, and some additional relevant information related to the content of the post. Identify the event or fact talked about in the post, and the time and date it was posted at, then use the additional information given - that is about the same subject at a similar time and date - to verify whether the information is true at the given date and time, or at least the probability for it to be true. The output you give is a grade between 0 and 100 (and only a grades ince the output will then be used as an int) and represents the reliability of the post (and only the post, not the additional information that should be considered true without fact checking needed) that was given as an input - 0 is not reliable at all (so the information is false) and 100 is very reliable (so a true information), in between are the information vague with a certain probability to be true. The output is the score and only the score without any sentence (no string) you can ask a maximum of 3 different searches, no more than that"),
         UserMessage(content=final_query),
     ]
 
@@ -58,14 +59,13 @@ def post_to_grade(post,date):
         )
 
     final = answer.choices[0].message.content
-    print(final)
     return int(final)
 
 def wiki_search(query):
 
     # Step 1: Initialize the Mistral client
     chat_history = [
-        SystemMessage(content="You are a helpful assistant that can search the web for information. Use context to answer the question. You MUST use the web_search tool to answer the following query, do NOT try to guess the answer yourself. Use only useful information that is relevant and related to the topic given by the input"),
+        SystemMessage(content="You are a helpful assistant that can search the web for information. Use context to answer the question. You MUST use the web_search tool to answer the following query, do NOT try to guess the answer yourself. Use only useful information that is relevant and related to the topic given by the input, your answer must be composed by a maximum of 50 words"),
         UserMessage(content=query),
     ]
 
@@ -101,7 +101,6 @@ def wiki_search(query):
     if hasattr(chat_response.choices[0].message, 'tool_calls'):
         tool_call = chat_response.choices[0].message.tool_calls[0]
         chat_history.append(chat_response.choices[0].message)
-        print(tool_call)
     else:
         print("No tool call found in the response")
 
@@ -143,23 +142,14 @@ def wiki_search(query):
     # Step 5: Call Mistral with the Tool Call Result
 
     def format_response(chat_response: list, wb_result:dict):
-        print("\n🤖 Answer:\n")
         refs_used = []
         
         # Print the main response
         for chunk in chat_response.choices[0].message.content:
             if isinstance(chunk, TextChunk):
-                print(chunk.text, end="")
+                None
             elif isinstance(chunk, ReferenceChunk):
                 refs_used += chunk.reference_ids
-            
-        
-        # Print references
-        if refs_used:
-            print("\n\n📚 Sources:")
-            for i, ref in enumerate(set(refs_used), 1):
-                reference = json.loads(wb_result)[str(ref)]
-                print(f"\n{i}. {reference['title']}: {reference['url']}")
                 
 
     # Use the formatter
@@ -206,11 +196,8 @@ def wiki_search(query):
                             ]
                         )
                         info += urls + " "
-                        print(urls, end="")
                 else:
                     info += chunk.delta.content + " "
-                    print(chunk.delta.content, end="")
-    print("\n Info is :" + info + "\n")
     return info 
 
 print(post_to_grade("Trump is the president of the united states.","2025-04-01T10:00:00Z"))
