@@ -216,6 +216,13 @@ class RedditDB:
         self.cur.execute("""SELECT * FROM "Post";""")
         return self.cur.fetchall()
 
+    def post_exists(self, post_id: str) -> bool:
+        self.cur.execute(
+            """SELECT 1 FROM "Post" WHERE post_id = %s;""",
+            (post_id,),
+        )
+        return self.cur.fetchone() is not None
+
     def get_comment(self, comment_id: str):
         self.cur.execute(
             """SELECT * FROM "Comment" WHERE comment_id = %s""", (comment_id,)

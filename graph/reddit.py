@@ -75,6 +75,12 @@ class RedditWrapper:
         self.db.add_user(user.id, user.name)
 
     def add_post(self, p):
+        if not p.author:
+            return
+
+        if self.db.post_exists(p.id):
+            return
+
         post = Post(
             p.id,
             p.author.id,
@@ -108,13 +114,13 @@ class RedditWrapper:
         comment = Comment(
             c.id,
             c.author.id,
-            c.parent_id,
+            c.parent_id[3:],
             c.body,
             c.score,
         )
 
         self.add_user(c.author)
-        self.add_post(self.reddit.submission(c.parent_id[3:]))
+        # self.add_post(self.reddit.submission(c.parent_id[3:]))
 
         print(
             "Added comment on post "
@@ -132,7 +138,7 @@ class RedditWrapper:
             comment.upvotes,
         )
 
-    def treat_user(self, u, depth, n_posts=3):
+    def treat_user(self, u, depth, n_posts=2):
         if depth < 0:
             return
 
@@ -144,7 +150,7 @@ class RedditWrapper:
         for s in u.submissions.top(limit=n_posts):
             self.treat_submission(s, depth - 1)
 
-    def treat_submission(self, s, depth, n_comments=3):
+    def treat_submission(self, s, depth, n_comments=1):
         if depth < 0:
             return
 
@@ -168,7 +174,6 @@ class RedditWrapper:
             return
 
         self.add_comment(c)
-
         self.treat_user(c.author, depth - 1)
 
 
