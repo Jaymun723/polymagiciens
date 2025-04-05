@@ -1,5 +1,3 @@
-from graph import process_most_commented, RedditDB
-from graph import RedditDB
+from graph.scrap import scrap
 
-db = RedditDB()
-process_most_commented(db)
+scrap()

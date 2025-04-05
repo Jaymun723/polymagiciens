@@ -1,6 +1,7 @@
 psycopg
 psycopg_binary
 asyncpraw
+praw
 pandas
 boto3
 mistralai
