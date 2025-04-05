@@ -225,16 +225,16 @@ class RedditScraper:
 		for t in tasks:
 			t.cancel()
 
-	async def worker(self, n_posts, n_comments = 3):
+	async def worker(self):
 		try:
 			while True:
 				if not self.user_queue.empty():
 					user, depth = await self.user_queue.get()
-					await self.treat_user(user, depth, n_posts)
+					await self.treat_user(user, depth)
 					self.user_queue.task_done()
 				elif not self.post_queue.empty():
 					submission, depth = await self.post_queue.get()
-					await self.treat_submission(submission, depth, n_comments)
+					await self.treat_submission(submission, depth)
 					self.post_queue.task_done()
 				elif not self.comment_queue.empty():
 					comment, depth = await self.comment_queue.get()
@@ -274,6 +274,8 @@ class RedditScraper:
 		if u is None:
 			return
 		await u.load()
+		if not hasattr(u, "fullname"):
+			u.fullname = "anonymous"
 		if u.fullname in self.users:
 			return
 		user = User(u.fullname, u.name)
