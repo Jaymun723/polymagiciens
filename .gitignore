@@ -1,4 +1,5 @@
 aws.bash
 Victor's Key.pem
 *.csv
-**/__pycache__
+**/__pycache__/**
+*.pyc
