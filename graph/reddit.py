@@ -75,6 +75,9 @@ def add_post(s):
     if s.name in posts:
         return
 
+    if s.author == None:
+        return
+
     post = Post(
         s.name,
         s.author.fullname,
@@ -138,6 +141,8 @@ def treat_submission(s, depth, n_comments=3):
     if depth < 0:
         return
 
+    print("Post with", len(s.comments), "named", s.title)
+
     add_post(s)
 
     # print ("Post has", len(s.comments), "comments")
@@ -173,11 +178,6 @@ if __name__ == "__main__":
     db = RedditDB()
 
     for p in reddit.subreddit("news").controversial(time_filter="year"):
-        treat_submission(
-            reddit.submission(
-                url="https://www.reddit.com/r/news/comments/1jrzecd/elon_musks_doge_teams_cut_critical_funding_from/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button"
-            ),
-            2,
-        )
+        treat_submission(p, 2)
 
     # vérifier que les ids sont cohérents (ajouter les user id & les author id avant de les utiliser)
