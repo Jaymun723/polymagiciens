@@ -1,14 +1,9 @@
 """
-Lists the available Amazon Bedrock models.
+First hand try
 """
 
 import logging
-import json
 import boto3
-
-
-from botocore.exceptions import ClientError
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
