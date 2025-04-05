@@ -1,0 +1,5 @@
+from,to,label,weight
+A,C,commented_on,1.0
+B,C,liked,0.8
+A,D,shared,1.2
+B,D,commented_on,1.0
