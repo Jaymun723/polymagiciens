@@ -1,0 +1,7 @@
+psycopg
+psycopg_binary
+asyncpraw
+pandas
+boto3
+mistralai
+wikipedia
