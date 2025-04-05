@@ -1,6 +1,7 @@
 import praw
 import psycopg
 from psycopg import sql
+from graph.pg_reddit_driver import RedditDB
 
 
 class User:
@@ -136,8 +137,6 @@ def treat_user(u, depth, n_posts=3):
 def treat_submission(s, depth, n_comments=3):
     if depth < 0:
         return
-
-    print("hi")
 
     add_post(s)
 

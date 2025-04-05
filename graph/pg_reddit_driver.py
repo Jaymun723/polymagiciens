@@ -53,7 +53,7 @@ class RedditDB:
             CREATE TABLE IF NOT EXISTS "User" (
                 user_id TEXT PRIMARY KEY,
                 user_name TEXT NOT NULL,
-                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100)
+                score INTEGER DEFAULT 50 CHECK (score BETWEEN 0 AND 100)
             );
         """
         )
@@ -65,7 +65,7 @@ class RedditDB:
                 title TEXT NOT NULL,
                 content TEXT,
                 upvotes INTEGER DEFAULT 0,
-                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
+                score INTEGER DEFAULT 50 CHECK (score BETWEEN 0 AND 100),
                 treated BOOLEAN DEFAULT FALSE,
                 date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -79,7 +79,7 @@ class RedditDB:
                 post_id TEXT REFERENCES "Post"(post_id),
                 content TEXT NOT NULL,
                 upvotes INTEGER DEFAULT 0,
-                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
+                score INTEGER DEFAULT 50 CHECK (score BETWEEN 0 AND 100),
                 treated BOOLEAN DEFAULT FALSE,
                 date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -88,7 +88,7 @@ class RedditDB:
         self.conn.commit()
         print("Tables ensured.")
 
-    def add_user(self, user_id: str, user_name: str, score: int = 0):
+    def add_user(self, user_id: str, user_name: str, score: int = 50):
         self.cur.execute(
             """
             INSERT INTO "User" (user_id, user_name, score)
@@ -106,7 +106,7 @@ class RedditDB:
         title: str,
         content: str,
         upvotes: int = 0,
-        score: int = 0,
+        score: int = 50,
         treated: bool = False,
         date=None,
     ):
@@ -127,7 +127,7 @@ class RedditDB:
         post_id: str,
         content: str,
         upvotes: int = 0,
-        score: int = 0,
+        score: int = 50,
         treated: bool = False,
         date=None,
     ):
@@ -152,6 +152,39 @@ class RedditDB:
     def get_post(self, post_id: str):
         self.cur.execute("""SELECT * FROM "Post" WHERE post_id = %s""", (post_id,))
         return self.cur.fetchone()
+
+    def mark_post_as_treated(self, post_id: str):
+        self.cur.execute(
+            """
+            UPDATE "Post"
+            SET treated = TRUE
+            WHERE post_id = %s;
+        """,
+            (post_id,),
+        )
+        self.conn.commit()
+
+    def update_post_score(self, post_id: str, new_score: int):
+        self.cur.execute(
+            """
+            UPDATE "Post"
+            SET score = %s
+            WHERE post_id = %s;
+        """,
+            (new_score, post_id),
+        )
+        self.conn.commit()
+
+    def update_comment_score(self, comment_id: str, new_score: int):
+        self.cur.execute(
+            """
+            UPDATE "Comment"
+            SET score = %s
+            WHERE comment_id = %s;
+        """,
+            (new_score, comment_id),
+        )
+        self.conn.commit()
 
     def get_posts_comments(self, post_id: str):
         self.cur.execute(
