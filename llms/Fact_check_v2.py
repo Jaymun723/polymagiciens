@@ -11,6 +11,20 @@ client = Mistral(
     api_key="OZSyUAoFi2DmsjJz5Cuqg8vWeFzG9grq",
 )
 
+def search_wikipedia(query):
+    try:
+        # Rechercher sur Wikipedia en fonction du texte de la requête
+        search_results = wikipedia.search(query, results=5)  # Retourne les 5 premiers résultats
+        return search_results
+    except wikipedia.exceptions.DisambiguationError as e:
+        # Si plusieurs articles existent, on récupère la liste d'articles possibles
+        return e.options
+    except wikipedia.exceptions.HTTPTimeoutError:
+        return ["Timeout error, please try again later."]
+    except Exception as e:
+        return str(e)
+
+
 def post_to_grade(title, post, date):
     '''
     Returns a reliability grade to a given post that was posted at a given date
@@ -30,7 +44,7 @@ def post_to_grade(title, post, date):
 
     search = chat_response.choices[0].message.content
     #print(search)
-    facts = [fact.strip() for fact in search.split(";") if fact.strip()]
+    facts = [search_wikipedia(fact.strip()) for fact in search.split(";") if fact.strip()]
     facts = facts[:3]  # Limiter à 3 pour cohérence avec prompt
 
     # Paralléliser les recherches avec ThreadPoolExecutor
@@ -68,6 +82,3 @@ def wiki_search(query):
         return page.summary[:500]
     except:
         return ""
-
-
-print(post_to_grade("Trump is the president of the united states.","President of the United States","2025-04-01T10:00:00Z"))
