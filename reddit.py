@@ -246,10 +246,10 @@ def add_comment(c):
 def treat_user(u, depth, n_posts = 3):
 	if depth < 0:
 		return
-	
+
 	if not hasattr(u, "fullname"):
 		return
-	
+
 	add_user(u)
 
 	for s in u.submissions.top(limit = n_posts):
@@ -259,6 +259,8 @@ def treat_submission(s, depth, n_comments = 3):
 	if depth < 0:
 		return
 	
+	print ("hi")
+
 	add_post(s)
 
 	# print ("Post has", len(s.comments), "comments")
@@ -287,6 +289,7 @@ r_news = reddit.subreddit("news")
 if __name__ == "__main__":
 	db = RedditDB()
 	
-	treat_submission(reddit.submission(url="https://www.reddit.com/r/news/comments/1jrzecd/elon_musks_doge_teams_cut_critical_funding_from/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button"), 4)
+	for p in reddit.subreddit("news").controversial(time_filter = "year"):
+		treat_submission(reddit.submission(url="https://www.reddit.com/r/news/comments/1jrzecd/elon_musks_doge_teams_cut_critical_funding_from/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button"), 2)
 
 	# vérifier que les ids sont cohérents (ajouter les user id & les author id avant de les utiliser)
