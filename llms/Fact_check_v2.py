@@ -31,9 +31,9 @@ def post_to_grade(title, post, date):
     search = chat_response.choices[0].message.content
     print(search)
     facts = [fact.strip() for fact in search.split(";") if fact.strip()]
-    facts = facts[:3]  # ⬅️ Limiter à 3 pour cohérence avec prompt
+    facts = facts[:3]  # Limiter à 3 pour cohérence avec prompt
 
-    # ▶️ Paralléliser les recherches avec ThreadPoolExecutor
+    # Paralléliser les recherches avec ThreadPoolExecutor
     with concurrent.futures.ThreadPoolExecutor() as executor:
         summaries = list(executor.map(wiki_search, facts))
 
@@ -56,11 +56,11 @@ def post_to_grade(title, post, date):
     final = answer.choices[0].message.content
     return int(final)
 
-# 🔁 Nouvelle version simplifiée de wiki_search()
+# Nouvelle version simplifiée de wiki_search()
 def wiki_search(query):
     try:
         page = wikipedia.page(query, auto_suggest=False)
-        return page.summary[:500]  # ⬅️ Limite la taille pour aller vite
+        return page.summary[:500]  # Limite la taille pour aller vite
     except:
         return ""
 

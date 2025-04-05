@@ -203,5 +203,3 @@ def wiki_search(query):
                 else:
                     info += chunk.delta.content + " "
     return info 
-
-print(post_to_grade("Trump is the president of the united states.","2025-04-01T10:00:00Z"))
