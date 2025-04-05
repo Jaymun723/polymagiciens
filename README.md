@@ -14,3 +14,10 @@ In the `llms` folder there is the code in charge of evaluating if a post is misi
 
 ## Notes
 
+## The stack
+
+Main code : EC2 instance
+PostgreSQL : AWS RDS
+AI custom model : SageMaker / Bedrock ?
+
+Le problème de comment_nli.py c'est qu'il tourne en local, on veut le faire tourner sur AWS.
