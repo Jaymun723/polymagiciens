@@ -54,7 +54,9 @@ def post_to_grade(title, post, date):
     )
 
     final = answer.choices[0].message.content
-    return int(final)
+    final_cleaned = ''.join(c for c in final if c.isdigit())
+    return int(final_cleaned) if final_cleaned else 0
+
 
 # Nouvelle version simplifiée de wiki_search()
 def wiki_search(query):
