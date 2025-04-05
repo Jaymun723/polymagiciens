@@ -1,7 +1,7 @@
 import praw
 import psycopg
 from psycopg import sql
-
+from pg_reddit_driver import RedditDB
 
 class User:
     def __init__(self, id, name):
@@ -73,6 +73,9 @@ def add_user(u):
 def add_post(s):
     if s.name in posts:
         return
+    
+    if s.author == None:
+        return
 
     post = Post(
         s.name,
@@ -101,6 +104,9 @@ def add_comment(c):
     if c.name in comments:
         return
 
+    if c.author == None:
+        return
+    
     comment = Comment(c.name, c.author.fullname, c.parent_id, c.body, c.score)
 
     add_user(c.author)
@@ -137,7 +143,7 @@ def treat_submission(s, depth, n_comments=3):
     if depth < 0:
         return
 
-    print("hi")
+    print("Post with", len(s.comments), "named", s.title)
 
     add_post(s)
 
@@ -165,6 +171,9 @@ def treat_comment(c, depth):
 
     treat_user(c.author, depth - 1)
 
+def scrap_post(id):
+    treat_submission(reddit.submission(id[3:]), 2)
+
 
 reddit = praw.Reddit("bot1", user_agent="polymagiciens bot1")
 
@@ -174,11 +183,6 @@ if __name__ == "__main__":
     db = RedditDB()
 
     for p in reddit.subreddit("news").controversial(time_filter="year"):
-        treat_submission(
-            reddit.submission(
-                url="https://www.reddit.com/r/news/comments/1jrzecd/elon_musks_doge_teams_cut_critical_funding_from/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button"
-            ),
-            2,
-        )
+        treat_submission(p, 2)
 
     # vérifier que les ids sont cohérents (ajouter les user id & les author id avant de les utiliser)
