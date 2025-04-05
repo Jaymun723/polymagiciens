@@ -1,7 +1,7 @@
 import asyncpraw
 import psycopg
 from psycopg import sql
-from graph.pg_reddit_driver import RedditDB
+from pg_reddit_driver import RedditDB
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -246,27 +246,27 @@ class RedditScraper:
 			pass
 
 	async def treat_user(self, user, depth, n_posts = 3):
+		await self.add_user(user)
 		if depth < 0:
 			return
-		await self.add_user(user)
 		async for submission in user.submissions.top(limit=n_posts):
 			await self.post_queue.put((submission, depth - 1))
 
 	async def treat_submission(self, submission, depth, n_comments = 3):
+		await self.add_post(submission)
 		if depth < 0:
 			return
-		await self.add_post(submission)
 		await submission.load()
 		await submission.comments.replace_more(limit=0)
 		for i, comment in enumerate(submission.comments[:n_comments]):
 			await self.comment_queue.put((comment, depth - 1))
 
 	async def treat_comment(self, comment, depth):
-		if depth < 0:
-			return
 		if not comment.parent_id.startswith("t3_"):  # Not a top-level comment
 			return
 		await self.add_comment(comment)
+		if depth < 0:
+			return
 		if comment.author:
 			await self.user_queue.put((comment.author, depth - 1))
 
