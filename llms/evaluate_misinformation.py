@@ -1,5 +1,5 @@
 import pandas as pd
-from llms.Fact_chek_v1 import post_to_grade
+from Fact_chek_v1 import post_to_grade
 
 df = pd.read_csv("combined_dataset.csv")
 
