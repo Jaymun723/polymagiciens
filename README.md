@@ -8,6 +8,9 @@ In the `llms` folder there is the code in charge of evaluating if a post is misi
 
 ## Todo
 
-[] `is_interesting`
-[] `is_comment_relevant`
-[] `network_score`
+- [] `is_interesting`
+- [] `is_comment_relevant`
+- [] `network_score`
+
+## Notes
+
