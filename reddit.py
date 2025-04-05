@@ -209,17 +209,36 @@ users = {}
 posts = {}
 comments = {}
 
-def add_user(user):
+def add_user(u):
+	if u.fullname in users:
+		return
+	
+	user = User(u.fullname, u.name)
+
 	print ("Added user " + user.name + " (id " + user.id + ")")
 	users[user.id] = user
 	db.add_user(user.id, user.name)
 
-def add_post(post):
+def add_post(s):
+	if s.name in posts:
+		return
+	
+	post = Post(s.name, s.author.fullname, s.title, s.url if not s.selftext else s.selftext, s.score)
+
+	add_user(s.author)
 	print ("Added post " + post.id + " by " + post.author_id + ": \"" + post.title + "\" content " + post.content)
 	posts[post.id] = post
 	db.add_post(post.id, post.author_id, post.title, post.content, post.upvotes)
 
-def add_comment(comment):
+def add_comment(c):
+	if c.name in comments:
+		return
+	
+	comment = Comment(c.name, c.author.fullname, c.parent_id, c.body, c.score)
+
+	add_user(c.author)
+	add_post(reddit.submission(c.parent_id[3:]))
+
 	print ("Added comment on post " + comment.post_id + " by " + comment.author_id + " content " + comment.content)
 	comments[comment.id] = comment
 	db.add_comment(comment.id, comment.author_id, comment.post_id, comment.content, comment.upvotes)
@@ -230,10 +249,8 @@ def treat_user(u, depth, n_posts = 3):
 	
 	if not hasattr(u, "fullname"):
 		return
-	user = User(u.fullname, u.name)
-
-	if user not in users:
-		add_user(user)
+	
+	add_user(u)
 
 	for s in u.submissions.top(limit = n_posts):
 		treat_submission(s, depth - 1)
@@ -241,11 +258,8 @@ def treat_user(u, depth, n_posts = 3):
 def treat_submission(s, depth, n_comments = 3):
 	if depth < 0:
 		return
-
-	post = Post(s.name, s.author.fullname, s.title, s.url if not s.selftext else s.selftext, s.score)
-
-	if post not in posts:
-		add_post(post)
+	
+	add_post(s)
 
 	# print ("Post has", len(s.comments), "comments")
 	for i in range(min(n_comments, len(s.comments))):
@@ -262,10 +276,7 @@ def treat_comment(c, depth):
 	if isinstance(c, praw.models.MoreComments) or c.author == None or not hasattr(c.author, "fullname"):
 		return
 	
-	comment = Comment(c.name, c.author.fullname, c.parent_id, c.body, c.score)
-
-	if comment not in comments:
-		add_comment(comment)
+	add_comment(c)
 
 	treat_user(c.author, depth - 1)
 
@@ -277,3 +288,5 @@ if __name__ == "__main__":
 	db = RedditDB()
 	
 	treat_submission(reddit.submission(url="https://www.reddit.com/r/news/comments/1jrzecd/elon_musks_doge_teams_cut_critical_funding_from/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button"), 4)
+
+	# vérifier que les ids sont cohérents (ajouter les user id & les author id avant de les utiliser)
