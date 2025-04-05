@@ -1,5 +1,6 @@
 from mistralai import Mistral
 from mistralai.models import  UserMessage, SystemMessage
+from mistralai.models import TextChunk, ReferenceChunk
 import os
 import wikipedia
 import json
@@ -10,7 +11,7 @@ from mistralai import ToolMessage
 ## Step 1: Initialize the Mistral client
 
 client = Mistral(
-    api_key=os.environ["ZPwkfGmpEB8H9PgUQw5vLZ1jzFBvXuET"],
+    api_key="OZSyUAoFi2DmsjJz5Cuqg8vWeFzG9grq",
 )
 
 def post_to_grade(post,date):
@@ -33,11 +34,13 @@ def post_to_grade(post,date):
         )
 
     #complete with the result of the wikipedia searches
-    search = chat_response.split(';')
+    search = chat_response.choices[0].message.content
+    facts = [fact.strip() for fact in search.split(";") if fact.strip()]
+
     additional_info = "\n Additional information : "
     
-    for s in search : 
-        additional_info += wiki_search(s) + " "
+    for f in facts : 
+        additional_info += wiki_search(f) + " "
 
     #final ask to a Mistral agent for a reliability grade 
 
@@ -54,13 +57,15 @@ def post_to_grade(post,date):
             temperature = 0.05
         )
 
-    return int(answer)
+    final = answer.choices[0].message.content
+    print(final)
+    return int(final)
 
 def wiki_search(query):
 
     # Step 1: Initialize the Mistral client
     chat_history = [
-        SystemMessage(content="You are a helpful assistant that can search the web for information. Use context to answer the question."),
+        SystemMessage(content="You are a helpful assistant that can search the web for information. Use context to answer the question. You MUST use the web_search tool to answer the following query, do NOT try to guess the answer yourself. Use only useful information that is relevant and related to the topic given by the input"),
         UserMessage(content=query),
     ]
 
@@ -174,6 +179,7 @@ def wiki_search(query):
     )
 
     last_reference_index = 0
+    info = ""
     if stream_response is not None:
         for event in stream_response:
             chunk = event.data.choices[0]
@@ -183,7 +189,7 @@ def wiki_search(query):
                         references_ids = [
                             ref_id
                             for chunk_elem in chunk.delta.content
-                            if chunk_elem.TYPE == "reference"
+                            if isinstance(chunk_elem, ReferenceChunk)
                             for ref_id in chunk_elem.reference_ids
                         ]
                         last_reference_index += len(references_ids)
@@ -199,6 +205,12 @@ def wiki_search(query):
                                 )
                             ]
                         )
+                        info += urls + " "
                         print(urls, end="")
                 else:
+                    info += chunk.delta.content + " "
                     print(chunk.delta.content, end="")
+    print("\n Info is :" + info + "\n")
+    return info 
+
+print(post_to_grade("Trump is the president of the united states.","2025-04-01T10:00:00Z"))
