@@ -59,9 +59,13 @@ def post_to_grade(title, post, date):
 # Nouvelle version simplifiée de wiki_search()
 def wiki_search(query):
     try:
-        page = wikipedia.page(query, auto_suggest=False)
-        return page.summary[:500]  # Limite la taille pour aller vite
+        result = wikipedia.search(query, results=1)
+        if not result:
+            return ""
+        page = wikipedia.page(result[0], auto_suggest=False)
+        return page.summary[:500]
     except:
         return ""
+
 
 print(post_to_grade("Trump is the president of the united states.","President of the United States","2025-04-01T10:00:00Z"))
