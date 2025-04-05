@@ -25,15 +25,27 @@ class User:
 
 
 class Post:
-    def __init__(self, id, author_id, title, content, upvotes):
+    def __init__(self, id, author_id, title, content, upvotes, subreddit):
+        self.post_id = id
         self.id = id
         self.author_id = author_id
         self.title = title
         self.content = content
         self.upvotes = upvotes
+        self.subreddit = subreddit
+
+    def asdict(self):
+        return {
+            "post_id": self.id,
+            "author_id": self.author_id,
+            "title": self.title,
+            "content": self.content,
+            "upvotes": self.upvotes,
+            "subreddit": self.subreddit,
+        }
 
     def __eq__(self, other):
-        return isinstance(other, Post) and self.id == other.id
+        return isinstance(other, Post) and self.post_id == other.post_id
 
     def __ne__(self, other):
         return not (self == other)
@@ -87,6 +99,7 @@ class RedditWrapper:
             p.title,
             p.url if not p.selftext else p.selftext,
             p.score,
+            p.subreddit.display_name,
         )
 
         self.add_user(p.author)
@@ -101,7 +114,12 @@ class RedditWrapper:
             + post.content
         )
         self.db.add_post(
-            post.id, post.author_id, post.title, post.content, post.upvotes
+            post.id,
+            post.author_id,
+            post.title,
+            post.content,
+            post.subreddit,
+            post.upvotes,
         )
 
     def add_comment(self, c):
@@ -138,7 +156,7 @@ class RedditWrapper:
             comment.upvotes,
         )
 
-    def treat_user(self, u, depth, n_posts=2):
+    def treat_user(self, u, depth, n_posts=100):
         if depth < 0:
             return
 
@@ -150,7 +168,7 @@ class RedditWrapper:
         for s in u.submissions.top(limit=n_posts):
             self.treat_submission(s, depth - 1)
 
-    def treat_submission(self, s, depth, n_comments=1):
+    def treat_submission(self, s, depth, n_comments=100):
         if depth < 0:
             return
 

@@ -64,6 +64,7 @@ class RedditDB:
                 author_id TEXT REFERENCES "User"(user_id),
                 title TEXT NOT NULL,
                 content TEXT,
+                subreddit TEXT NOT NULL,
                 upvotes INTEGER DEFAULT 0,
                 score INTEGER DEFAULT 50 CHECK (score BETWEEN 0 AND 100),
                 treated BOOLEAN DEFAULT FALSE,
@@ -99,24 +100,71 @@ class RedditDB:
         )
         self.conn.commit()
 
+    # def add_post(
+    #     self,
+    #     post_id: str,
+    #     author_id: str,
+    #     title: str,
+    #     content: str,
+    #     subreddit: str,
+    #     upvotes: int = 0,
+    #     score: int = 0,
+    #     treated: bool = False,
+    #     date=None,
+    # ):
+    #     self.cur.execute(
+    #         """INSERT INTO "Post" (post_id, author_id, title, content, upvotes, subreddit)
+    #         VALUES (%(post_id)s, %(author_id)s, %(title)s, %(content)s, %(upvotes)s, %(subreddit)s)
+    #         ON CONFLICT (post_id) DO NOTHING;""",
+    #         {
+    #             "post_id": post_id,
+    #             "author_id": author_id,
+    #             "title": title,
+    #             "content": content,
+    #             "upvotes": upvotes,
+    #             "subreddit": subreddit,
+    #         },
+    #     )
+    #     self.conn.commit()
+
     def add_post(
         self,
         post_id: str,
         author_id: str,
         title: str,
         content: str,
+        subreddit: str,
         upvotes: int = 0,
         score: int = 50,
         treated: bool = False,
         date=None,
     ):
+        print(
+            post_id, author_id, title, content, subreddit, upvotes, score, treated, date
+        )
         self.cur.execute(
             """
-            INSERT INTO "Post" (post_id, author_id, title, content, upvotes, score, treated, date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))
+            INSERT INTO "Post" (
+                post_id, author_id, title, content, subreddit,
+                upvotes, score, treated, date
+            )
+            VALUES (
+                %(post_id)s, %(author_id)s, %(title)s, %(content)s, %(subreddit)s,
+                %(upvotes)s, %(score)s, %(treated)s, COALESCE(%(date)s, CURRENT_TIMESTAMP)
+            )
             ON CONFLICT (post_id) DO NOTHING;
-        """,
-            (post_id, author_id, title, content, upvotes, score, treated, date),
+            """,
+            {
+                "post_id": post_id,
+                "author_id": author_id,
+                "title": title,
+                "content": content,
+                "subreddit": subreddit,
+                "upvotes": upvotes,
+                "score": score,
+                "treated": treated,
+                "date": date,
+            },
         )
         self.conn.commit()
 
@@ -133,11 +181,26 @@ class RedditDB:
     ):
         self.cur.execute(
             """
-            INSERT INTO "Comment" (comment_id, author_id, post_id, content, upvotes, score, treated, date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))
+            INSERT INTO "Comment" (
+                comment_id, author_id, post_id, content,
+                upvotes, score, treated, date
+            )
+            VALUES (
+                %(comment_id)s, %(author_id)s, %(post_id)s, %(content)s,
+                %(upvotes)s, %(score)s, %(treated)s, COALESCE(%(date)s, CURRENT_TIMESTAMP)
+            )
             ON CONFLICT (comment_id) DO NOTHING;
-        """,
-            (comment_id, author_id, post_id, content, upvotes, score, treated, date),
+            """,
+            {
+                "comment_id": comment_id,
+                "author_id": author_id,
+                "post_id": post_id,
+                "content": content,
+                "upvotes": upvotes,
+                "score": score,
+                "treated": treated,
+                "date": date,
+            },
         )
         self.conn.commit()
 
