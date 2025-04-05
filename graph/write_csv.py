@@ -1,4 +1,3 @@
-from pg_reddit_driver import RedditDB
+from graph import RedditDB
 
 users = db.get_users()
-

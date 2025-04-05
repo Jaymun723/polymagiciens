@@ -1,7 +1,8 @@
 import praw
 import psycopg
 from psycopg import sql
-from pg_reddit_driver import RedditDB
+from graph import RedditDB
+
 
 class User:
     def __init__(self, id, name):
@@ -73,7 +74,7 @@ def add_user(u):
 def add_post(s):
     if s.name in posts:
         return
-    
+
     post = Post(
         s.name,
         s.author.fullname if s.author.fullname else "anonymous",
@@ -100,8 +101,14 @@ def add_post(s):
 def add_comment(c):
     if c.name in comments:
         return
-    
-    comment = Comment(c.name, c.author.fullname if c.author.fullname else "anonymous", c.parent_id, c.body, c.score)
+
+    comment = Comment(
+        c.name,
+        c.author.fullname if c.author.fullname else "anonymous",
+        c.parent_id,
+        c.body,
+        c.score,
+    )
 
     add_user(c.author)
     add_post(reddit.submission(c.parent_id[3:]))
@@ -154,14 +161,13 @@ def treat_comment(c, depth):
         print("WARNING: treating non-top comment")
         return
 
-    if (
-        isinstance(c, praw.models.MoreComments)
-    ):
+    if isinstance(c, praw.models.MoreComments):
         return
 
     add_comment(c)
 
     treat_user(c.author, depth - 1)
+
 
 def scrap_post(id):
     treat_submission(reddit.submission(id[3:]), 2)
