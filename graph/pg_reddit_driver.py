@@ -47,44 +47,47 @@ class RedditDB:
         # Step 3: Create tables if not exist
         self._create_tables()
 
-    def _create_tables(self):
-        self.cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS "User" (
-                user_id TEXT PRIMARY KEY,
-                user_name TEXT NOT NULL,
-                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100)
-            );
+
+def _create_tables(self):
+    self.cur.execute(
         """
-        )
-        self.cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS "Post" (
-                post_id TEXT PRIMARY KEY,
-                author_id TEXT REFERENCES "User"(user_id),
-                title TEXT NOT NULL,
-                content TEXT,
-                upvotes INTEGER DEFAULT 0,
-                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
-                treated BOOLEAN DEFAULT FALSE
-            );
+        CREATE TABLE IF NOT EXISTS "User" (
+            user_id TEXT PRIMARY KEY,
+            user_name TEXT NOT NULL,
+            score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100)
+        );
+    """
+    )
+    self.cur.execute(
         """
-        )
-        self.cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS "Comment" (
-                comment_id TEXT PRIMARY KEY,
-                author_id TEXT REFERENCES "User"(user_id),
-                post_id TEXT REFERENCES "Post"(post_id),
-                content TEXT NOT NULL,
-                upvotes INTEGER DEFAULT 0,
-                score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
-                treated BOOLEAN DEFAULT FALSE
-            );
+        CREATE TABLE IF NOT EXISTS "Post" (
+            post_id TEXT PRIMARY KEY,
+            author_id TEXT REFERENCES "User"(user_id),
+            title TEXT NOT NULL,
+            content TEXT,
+            upvotes INTEGER DEFAULT 0,
+            score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
+            treated BOOLEAN DEFAULT FALSE,
+            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """
+    )
+    self.cur.execute(
         """
-        )
-        self.conn.commit()
-        print("Tables ensured.")
+        CREATE TABLE IF NOT EXISTS "Comment" (
+            comment_id TEXT PRIMARY KEY,
+            author_id TEXT REFERENCES "User"(user_id),
+            post_id TEXT REFERENCES "Post"(post_id),
+            content TEXT NOT NULL,
+            upvotes INTEGER DEFAULT 0,
+            score INTEGER DEFAULT 0 CHECK (score BETWEEN 0 AND 100),
+            treated BOOLEAN DEFAULT FALSE,
+            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """
+    )
+    self.conn.commit()
+    print("Tables ensured.")
 
     def add_user(self, user_id: str, user_name: str, score: int = 0):
         self.cur.execute(
@@ -97,45 +100,49 @@ class RedditDB:
         )
         self.conn.commit()
 
-    def add_post(
-        self,
-        post_id: str,
-        author_id: str,
-        title: str,
-        content: str,
-        upvotes: int = 0,
-        score: int = 0,
-        treated: bool = False,
-    ):
-        self.cur.execute(
-            """
-            INSERT INTO "Post" (post_id, author_id, title, content, upvotes, score, treated)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (post_id) DO NOTHING;
-        """,
-            (post_id, author_id, title, content, upvotes, score, treated),
-        )
-        self.conn.commit()
 
-    def add_comment(
-        self,
-        comment_id: str,
-        author_id: str,
-        post_id: str,
-        content: str,
-        upvotes: int = 0,
-        score: int = 0,
-        treated: bool = False,
-    ):
-        self.cur.execute(
-            """
-            INSERT INTO "Comment" (comment_id, author_id, post_id, content, upvotes, score, treated)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (comment_id) DO NOTHING;
-        """,
-            (comment_id, author_id, post_id, content, upvotes, score, treated),
-        )
-        self.conn.commit()
+def add_post(
+    self,
+    post_id: str,
+    author_id: str,
+    title: str,
+    content: str,
+    upvotes: int = 0,
+    score: int = 0,
+    treated: bool = False,
+    date=None,
+):
+    self.cur.execute(
+        """
+        INSERT INTO "Post" (post_id, author_id, title, content, upvotes, score, treated, date)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))
+        ON CONFLICT (post_id) DO NOTHING;
+    """,
+        (post_id, author_id, title, content, upvotes, score, treated, date),
+    )
+    self.conn.commit()
+
+
+def add_comment(
+    self,
+    comment_id: str,
+    author_id: str,
+    post_id: str,
+    content: str,
+    upvotes: int = 0,
+    score: int = 0,
+    treated: bool = False,
+    date=None,
+):
+    self.cur.execute(
+        """
+        INSERT INTO "Comment" (comment_id, author_id, post_id, content, upvotes, score, treated, date)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))
+        ON CONFLICT (comment_id) DO NOTHING;
+    """,
+        (comment_id, author_id, post_id, content, upvotes, score, treated, date),
+    )
+    self.conn.commit()
 
     def get_user(self, user_id: str):
         self.cur.execute("""SELECT * FROM "User" WHERE user_id = %s""", (user_id,))
