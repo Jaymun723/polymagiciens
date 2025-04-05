@@ -15,11 +15,12 @@ class User:
 		return hash(self.id)
 
 class Post:
-	def __init__(self, id, author_id, title, content):
+	def __init__(self, id, author_id, title, content, upvote):
 		self.id = id
 		self.author_id = author_id
 		self.title = title
 		self.content = content
+		self.upvote = upvote
 
 	def __eq__(self, other):
 		return isinstance(other, Post) and self.id == other.id
@@ -31,11 +32,12 @@ class Post:
 		return hash(self.id)
 
 class Comment:
-	def __init__(self, id, author_id, post_id, content):
+	def __init__(self, id, author_id, post_id, content, upvote):
 		self.id = id
 		self.author_id = author_id
 		self.post_id = post_id
 		self.content = content
+		self.upvote = upvote
 		
 	def __eq__(self, other):
 		return isinstance(other, Comment) and self.id == other.id
@@ -80,7 +82,7 @@ def treat_submission(s, depth, n_comments = 3):
 	if depth < 0:
 		return
 	
-	post = Post(s.name, s.author.fullname, s.title, s.url if not s.selftext else s.selftext)
+	post = Post(s.name, s.author.fullname, s.title, s.url if not s.selftext else s.selftext, s.score)
 
 	if post not in posts:
 		add_post(post)
@@ -100,7 +102,7 @@ def treat_comment(c, depth):
 	if isinstance(c, praw.models.MoreComments) or c.author == None or not hasattr(c.author, "fullname"):
 		return
 	
-	comment = Comment(c.name, c.author.fullname, c.parent_id, c.body)
+	comment = Comment(c.name, c.author.fullname, c.parent_id, c.body, c.score)
 
 	if comment not in comments:
 		add_comment(comment)
