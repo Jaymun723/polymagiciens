@@ -13,7 +13,7 @@ from botocore.exceptions import ClientError
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-MODEL_ID = "mistral.mistral-large-2407-v1:0"
+MODEL_ID = "anthropic.claude-3-7-sonnet-20250219-v1:0"
 
 conversation = []
 
@@ -37,6 +37,8 @@ def talk_to_client(client):
 
 def main():
     bedrock_client = boto3.client("bedrock-runtime")
+
+    print(boto3.client("bedrock").list_foundation_models())
 
     talk_to_client(bedrock_client)
 

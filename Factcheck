@@ -1,0 +1,175 @@
+from mistralai import Mistral
+from mistralai.models import  UserMessage, SystemMessage
+import os
+import wikipedia
+import json
+from datetime import datetime
+import json
+from mistralai import ToolMessage
+
+## Step 1: Initialize the Mistral client
+
+client = Mistral(
+    api_key=os.environ["ZPwkfGmpEB8H9PgUQw5vLZ1jzFBvXuET"],
+)
+
+
+# Pour tester : 
+#query = "Who won the Nobel Peace Prize in 2024?"
+
+def grade(post,date):
+
+    '''
+    Returns a reliability grade to a given post that was posted at a given date
+    '''
+
+    query = "Date : "+ date + "\n Post : " + post
+    #Add the user message to the chat_history
+    chat_history = [
+        SystemMessage(content="The input is a post (from a social media : could be Facebook or Reddit etc) and the time and date it was posted at, and the aim is to verify its reliability. You formulate one or multiple facts that you want to know and that can be searched on wikipedia to find information that should help determine the veracity and reliability of the post. The facts you ask for should be independent of the post in the sense that the questions will be web searches. The list of facts you want should be given without explanation or context in the form of a wikipedia search (not any sentence except the facts themselves, so no sentence at all before those facts) and should be in a format that can be read by python. Use the least facts possible necessary to check the information correctly without missing any important point (given the date at which the post was written) There should be a semicolon between every fact that you want to check, and there should be no quotation marks"),
+        UserMessage(content=query),
+    ]
+
+    ## Step 2 : Define the function calling tool to search Wikipedia
+    
+    web_search_tool = {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "Search the web for a query for which you do not know the answer",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Query to search the web in keyword form.",
+                    }
+                },
+                "required": ["query"],
+            },
+        },
+    }
+
+    chat_response = client.chat.complete(
+        model="mistral-large-latest",
+        messages=chat_history,
+        tools=[web_search_tool],
+        temperature = 0.05
+    )
+
+
+    if hasattr(chat_response.choices[0].message, 'tool_calls'):
+        tool_call = chat_response.choices[0].message.tool_calls[0]
+        chat_history.append(chat_response.choices[0].message)
+        print(tool_call)
+    else:
+        print("No tool call found in the response")
+
+    ## Step 3: Define Method to Search Wikipedia Associated with the Tool
+
+
+    def get_wikipedia_search(query: str) -> str:
+        """
+        Search Wikipedia for a query and return the results in a specific format.
+        """
+        result = wikipedia.search(query, results = 5)
+        data={}
+        for i, res in enumerate(result):
+            pg= wikipedia.page(res, auto_suggest=False)
+            data[i]={
+                "url": pg.url,
+                "title": pg.title,
+                "snippets": [pg.summary.split('.')],
+                "description": None,
+                "date": datetime.now().isoformat(),
+                "source": "wikipedia"
+            }
+        return json.dumps(data, indent=2)
+
+    ## Step 4: Perform the Tool Call and Search Wikipedia
+
+    query = json.loads(tool_call.function.arguments)["query"]
+    wb_result = get_wikipedia_search(query)
+
+    tool_call_result = ToolMessage(
+        content=wb_result,
+        tool_call_id=tool_call.id,
+        name=tool_call.function.name,
+    )
+
+
+    # Append the tool call message to the chat_history
+    chat_history.append(tool_call_result)
+
+    #See chunks in the response
+    print(json.dumps(json.loads(wb_result), indent=2))
+
+    ## Step 5: Call Mistral with the Tool Call Result
+
+    from mistralai.models import TextChunk, ReferenceChunk
+
+    def format_response(chat_response: list, wb_result:dict):
+        print("\n🤖 Answer:\n")
+        refs_used = []
+        
+        # Print the main response
+        for chunk in chat_response.choices[0].message.content:
+            if isinstance(chunk, TextChunk):
+                print(chunk.text, end="")
+            elif isinstance(chunk, ReferenceChunk):
+                refs_used += chunk.reference_ids
+            
+        
+        # Print references
+        if refs_used:
+            print("\n\n📚 Sources:")
+            for i, ref in enumerate(set(refs_used), 1):
+                reference = json.loads(wb_result)[str(ref)]
+                print(f"\n{i}. {reference['title']}: {reference['url']}")
+                
+
+    # Use the formatter
+    chat_response = client.chat.complete(
+        model="mistral-large-latest",
+        messages=chat_history,
+        tools=[web_search_tool],
+    )
+    format_response(chat_response, wb_result)
+
+    ## Step 6 : Streaming completion with references
+
+    stream_response = client.chat.stream(
+        model="mistral-large-2411",
+        messages=chat_history,
+        tools=[web_search_tool],
+    )
+
+    last_reference_index = 0
+    if stream_response is not None:
+        for event in stream_response:
+            chunk = event.data.choices[0]
+            if chunk.delta.content:
+                if isinstance(chunk.delta.content, list):
+                        # Check if TYPE of chunk is a reference
+                        references_ids = [
+                            ref_id
+                            for chunk_elem in chunk.delta.content
+                            if chunk_elem.TYPE == "reference"
+                            for ref_id in chunk_elem.reference_ids
+                        ]
+                        last_reference_index += len(references_ids)
+
+                        # Map the references ids to the references data stored in the chat history
+                        references_data = [json.loads(wb_result)[str(ref_id)] for ref_id in references_ids]
+                        urls = " " + ", ".join(
+                            [
+                                f"[{i}]({reference['url']})"
+                                for i, reference in enumerate(
+                                    references_data,
+                                    start=last_reference_index - len(references_ids) + 1,
+                                )
+                            ]
+                        )
+                        print(urls, end="")
+                else:
+                    print(chunk.delta.content, end="")
