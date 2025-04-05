@@ -39,9 +39,12 @@ def post_to_grade(post,date):
     facts = [fact.strip() for fact in search.split(";") if fact.strip()]
 
     additional_info = "\n Additional information : "
-    
-    for f in facts : 
-        additional_info += wiki_search(f) + " "
+
+    for f in facts :
+        try :
+            additional_info+=wiki_search(f) + " "
+        except wikipedia.DisambiguationError : 
+            pass
 
     #final ask to a Mistral agent for a reliability grade 
 
