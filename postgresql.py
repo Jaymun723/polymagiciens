@@ -1,11 +1,8 @@
 # Note: the module name is psycopg, not psycopg3
 import psycopg
 
-conStr = "postgres://postgres:LesPolymagiciens2023!@polymagicien.cbue8w2e21nq.us-west-2.rds.amazonaws.com:5432/"
-
 # Connect to an existing database
-with psycopg.connect(conStr) as conn:
-
+with psycopg.connect() as conn:
     # Open a cursor to perform database operations
     with conn.cursor() as cur:
 
