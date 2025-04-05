@@ -159,15 +159,15 @@ class RedditDB:
 
 if __name__ == "__main__":
     db = RedditDB()
-    # db.add_user("u1", "alice")
-    # db.add_post("p1", "u1", "First Post", "This is content", 12)
-    # db.add_comment("c1", "u1", "p1", "Nice one!", 3)
+    db.add_user("u1", "alice")
+    db.add_post("p1", "u1", "First Post", "This is content", 12)
+    db.add_comment("c1", "u1", "p1", "Nice one!", 3)
 
-    # print(db.get_user("u1"))
-    # print(db.get_users())
+    print(db.get_user("u1"))
+    print(db.get_users())
 
-    # print(db.get_post("p1"))
-    # print(db.get_posts())
+    print(db.get_post("p1"))
+    print(db.get_posts())
 
-    # print(db.get_comment("c1"))
+    print(db.get_comment("c1"))
     print(db.get_users())
