@@ -29,7 +29,7 @@ def post_to_grade(title, post, date):
     )
 
     search = chat_response.choices[0].message.content
-    print(search)
+    #print(search)
     facts = [fact.strip() for fact in search.split(";") if fact.strip()]
     facts = facts[:3]  # Limiter à 3 pour cohérence avec prompt
 
@@ -40,7 +40,7 @@ def post_to_grade(title, post, date):
     additional_info = "\n Additional information : " + " ".join(summaries)
 
     final_query = query + "\n" + additional_info
-    print(final_query)
+    #print(final_query)
 
     chat_history = [
         SystemMessage(content="The input is a reddit post, poster by a user, at a given time, and some additional relevant information related to the content of the post. Identify the event or fact talked about in the post, and the time and date it was posted at, then use the additional information given - that is about the same subject at a similar time and date - to verify whether the information is true at the given date and time, or at least the probability for it to be true. The output you give is a grade between 0 and 100 (and only a grades ince the output will then be used as an int) and represents the reliability of the post (and only the post, not the additional information that should be considered true without fact checking needed) that was given as an input - 0 is not reliable at all (so the information is false) and 100 is very reliable (so a true information), in between are the information vague with a certain probability to be true. The output is the score and only the score without any sentence (no string) you can ask a maximum of 3 different searches, no more than that"),
