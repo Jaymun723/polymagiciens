@@ -25,7 +25,7 @@ def post_to_grade(title, post, date):
     chat_response = client.chat.complete(
         model="mistral-large-latest",
         messages=chat_history,
-        temperature=0.05
+        temperature=0
     )
 
     search = chat_response.choices[0].message.content
@@ -50,7 +50,7 @@ def post_to_grade(title, post, date):
     answer = client.chat.complete(
         model="mistral-large-latest",
         messages=chat_history,
-        temperature=0.05
+        temperature=0
     )
 
     final = answer.choices[0].message.content

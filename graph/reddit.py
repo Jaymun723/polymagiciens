@@ -1,11 +1,12 @@
 import asyncpraw
 import psycopg
 from psycopg import sql
-from pg_reddit_driver import RedditDB
+from graph.pg_reddit_driver import RedditDB
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
+
 
 class User:
 	def __init__(self, id, name):
@@ -77,7 +78,8 @@ comments = {}
 # def add_post(s):
 #     if s.name in posts:
 #         return
-	
+
+
 #     post = Post(
 #         s.name,
 #         s.author.fullname if s.author.fullname else "anonymous",
@@ -85,6 +87,18 @@ comments = {}
 #         s.url if not s.selftext else s.selftext,
 #         s.score,
 #     )
+def add_post(s):
+    if s.name in posts:
+        return
+
+    post = Post(
+        s.name,
+        s.author.fullname if s.author.fullname else "anonymous",
+        s.title,
+        s.url if not s.selftext else s.selftext,
+        s.score,
+    )
+
 
 #     add_user(s.author)
 #     print(
@@ -104,8 +118,21 @@ comments = {}
 # def add_comment(c):
 #     if c.name in comments:
 #         return
-	
+
+
 #     comment = Comment(c.name, c.author.fullname if c.author.fullname else "anonymous", c.parent_id, c.body, c.score)
+def add_comment(c):
+    if c.name in comments:
+        return
+
+    comment = Comment(
+        c.name,
+        c.author.fullname if c.author.fullname else "anonymous",
+        c.parent_id,
+        c.body,
+        c.score,
+    )
+
 
 #     add_user(c.author)
 #     add_post(reddit.submission(c.parent_id[3:]))
@@ -166,6 +193,7 @@ comments = {}
 #     add_comment(c)
 
 #     treat_user(c.author, depth - 1)
+
 
 class RedditScraper:
 	def __init__(self, reddit, db, max_workers=10):
@@ -303,6 +331,7 @@ async def main():
 		await s.treat_submission(p, 2)
 
 	# vérifier que les ids sont cohérents (ajouter les user id & les author id avant de les utiliser)
+
 
 if __name__ == "__main__":
 	asyncio.run(main())
