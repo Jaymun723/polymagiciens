@@ -20,7 +20,7 @@ def requete_is_relevant(query):
 
     return chat_response.choices[0].message.content
 
-print(requete_is_relevant("Le vaccin contre le COVID-19 est dangereux et provoque des effets secondaires graves."))
+print(requete_is_relevant("one minute of eye-spiced twerking"))
 print(requete_is_relevant("La Terre est plate et la NASA cache la vérité."))
 print(requete_is_relevant("Le changement climatique est un mythe inventé par les scientifiques."))
 print(requete_is_relevant("le uno c'est vraiment un jeu de merde"))
