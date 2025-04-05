@@ -274,11 +274,10 @@ class RedditScraper:
 		if u is None:
 			return
 		await u.load()
-		if not hasattr(u, "fullname"):
-			u.fullname = "anonymous"
-		if u.fullname in self.users:
+		if hasattr(u, "fullname") and u.fullname in self.users:
 			return
-		user = User(u.fullname, u.name)
+
+		user = User(u.fullname if hasattr(u, "fullname") else "anonymous", u.name if hasattr(u, "name") else "anonymous")
 		self.users[user.id] = user
 		print(f"Added user {user.name} (id {user.id})")
 		await asyncio.get_running_loop().run_in_executor(self.executor, self.db.add_user, user.id, user.name)
