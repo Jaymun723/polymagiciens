@@ -18,7 +18,7 @@ def post_to_grade(title, post, date):
     query = "Date : " + date + "\n Title :" + title + "\n Post : " + post
 
     chat_history = [
-        SystemMessage(content="The input is a post and its title (from a social media : could be Facebook or Reddit etc) and the time and date it was posted at..."),
+        SystemMessage(content="The input is a post (from a social media : could be Facebook or Reddit etc) and the time and date it was posted at, and the aim is to verify its reliability. You formulate one or multiple facts that you want to know and that can be searched on wikipedia to find information that should help determine the veracity and reliability of the post. The facts you ask for should be independent of the data you already have access to and independent of the post in the sense that the questions will be web searches. The list of facts you want should be given without explanation or context in the form of a wikipedia search (not any sentence except the facts themselves, so no sentence at all before those facts) and should be in a format that can be read by python. Use the least facts possible necessary to check the information correctly without missing any important point (given the date at which the post was written) There should be a semicolon between every fact that you want to check, and there should be no quotation marks"),
         UserMessage(content=query),
     ]
 
@@ -43,7 +43,7 @@ def post_to_grade(title, post, date):
     print(final_query)
 
     chat_history = [
-        SystemMessage(content="The input is a reddit post, poster by a user..."),
+        SystemMessage(content="The input is a reddit post, poster by a user, at a given time, and some additional relevant information related to the content of the post. Identify the event or fact talked about in the post, and the time and date it was posted at, then use the additional information given - that is about the same subject at a similar time and date - to verify whether the information is true at the given date and time, or at least the probability for it to be true. The output you give is a grade between 0 and 100 (and only a grades ince the output will then be used as an int) and represents the reliability of the post (and only the post, not the additional information that should be considered true without fact checking needed) that was given as an input - 0 is not reliable at all (so the information is false) and 100 is very reliable (so a true information), in between are the information vague with a certain probability to be true. The output is the score and only the score without any sentence (no string) you can ask a maximum of 3 different searches, no more than that"),
         UserMessage(content=final_query),
     ]
 
@@ -64,4 +64,4 @@ def wiki_search(query):
     except:
         return ""
 
-print(post_to_grade("Trump is the president of the united states.","2025-04-01T10:00:00Z"))
+print(post_to_grade("Trump is the president of the united states.","President of the United States","2025-04-01T10:00:00Z"))
