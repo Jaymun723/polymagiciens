@@ -11,7 +11,7 @@ import time
 # Configuration AWS/SageMaker
 # -------------------------
 sess = sagemaker.Session()
-role = "arn:aws:iam::<your-account-id>:role/service-role/AmazonSageMaker-ExecutionRole-XXXX"  # TODO: Remplacer par votre ARN IAM
+role = "arn:aws:iam::290971503872:role/MySageMakerExecutionRole" 
 
 # -------------------------
 # Étape 1 : Déployer le modèle RoBERTa-MNLI
