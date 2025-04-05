@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class ThreadedScraper:
-    def __init__(self, scrape_func, max_workers=5):
+    def __init__(self, scrape_func, max_workers=None):
         """
         Initialize the scraper with a scraping function and a maximum number of worker threads.
 

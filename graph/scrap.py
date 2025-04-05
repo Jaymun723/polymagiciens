@@ -12,11 +12,11 @@ def scrap():
     sub = reddit.subreddit("news")
 
     def save_post(p):
-        wrapper.treat_submission(p, 4, 1)
+        wrapper.treat_submission(p, 40, 10)
 
-    scrapper = ThreadedScraper(save_post, 5)
+    scrapper = ThreadedScraper(save_post, None)
 
-    for p in sub.top(time_filter="week", limit=1):
+    for p in sub.top(time_filter="week", limit=100):
         scrapper.process_post(p)
 
     scrapper.wait_all()
