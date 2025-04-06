@@ -28,6 +28,6 @@ def post_score():
     #     scrapper.process_post(p)
 
     for p in db.get_most_commented_unprocessed_post():
-        scrapper.process_post(p)
+        scrapper.process_post({id: p[0]})
 
     scrapper.wait_all()
