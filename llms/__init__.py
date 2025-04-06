@@ -13,5 +13,4 @@ def compute_post_score(post):
     post_title = post[2]
     post_content = post[3]
     post_date = str(post[8])
-
     return reddit_factchecking(post_title, post_content, post_date)
