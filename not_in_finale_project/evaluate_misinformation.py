@@ -1,9 +1,7 @@
 import pandas as pd
-from Fact_check_v2 import post_to_grade
+from llms.request_factcheck import post_to_grade
 
-import pandas as pd
-
-df = pd.read_csv("combined_dataset.csv")
+df = pd.read_csv("not_in_finale_project/combined_dataset.csv")
 
 bon = 0
 total = 0
