@@ -1,7 +1,5 @@
 import networkx as nx
-from graph.pg_reddit_driver import (
-    RedditDB,
-)  # assuming your class is saved in reddit_db.py
+from graph.pg_reddit_driver import RedditDB
 import pandas as pd
 
 
