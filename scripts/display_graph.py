@@ -1,2 +1,2 @@
-def diplay_graph():
+def display_graph():
     pass

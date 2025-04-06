@@ -3,6 +3,7 @@ from scripts.scrap import scrap
 from scripts.post_score import post_score
 from scripts.comment_score import comment_score
 from scripts.build_graph import build_graph
+from scripts.display_graph import display_graph
 
 # Mapping from CLI argument to actual function
 FUNCTION_MAP = {
