@@ -1,60 +1,84 @@
 import pandas as pd
-import networkx as nx
 import matplotlib.pyplot as plt
+import networkx as nx
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 
-def plot_graph_matplotlib(nodes_csv, edges_csv, output_file="graph.png"):
-    # Lire les CSV
+def plot_graph_custom(nodes_csv, edges_csv, output_path):
+    # Charger les fichiers
     nodes_df = pd.read_csv(nodes_csv)
     edges_df = pd.read_csv(edges_csv)
+
+    # Nettoyer les labels
+    nodes_df["label"] = nodes_df["label"].str.capitalize()
 
     # Créer le graphe
     G = nx.DiGraph()
 
-    # Ajouter les nœuds avec types
     for _, row in nodes_df.iterrows():
-        G.add_node(row['id'], label=row['label'], text=row.get('text_or_title', ''))
+        G.add_node(row["id"], type=row["label"], weight=row["weight"])
 
-    # Ajouter les arêtes avec poids
     for _, row in edges_df.iterrows():
-        G.add_edge(row['from'], row['to'],
-                   label=row.get('label', ''),
-                   weight=row.get('weight', 1.0))
+        if row["from"] in G and row["to"] in G:
+            G.add_edge(row["from"], row["to"], label=row["label"], weight=row["weight"])
+        else:
+            print(f"⚠️ Arête ignorée (noeud manquant) : {row['from']} -> {row['to']}")
 
-    # Layout automatique (spring)
-    pos = nx.spring_layout(G, seed=42)
+    pos = nx.spring_layout(G, seed=50)
 
-    # Obtenir les poids des arêtes pour les largeurs
-    weights = [G[u][v]['weight'] for u, v in G.edges()]
-    widths = [1 + 2 * w for w in weights]  # adapter les facteurs selon le rendu
+    ### --- Couleurs des nœuds ---
+    node_weights = [G.nodes[n]["weight"] for n in G.nodes()]
+    node_min, node_max = min(node_weights), max(node_weights)
 
-    # Couleurs des nœuds selon le type
+    node_cmap = cm.get_cmap('bwr')
+    if node_min < 0 and node_max > 0:
+        node_norm = mcolors.TwoSlopeNorm(vmin=node_min, vcenter=0, vmax=node_max)
+    else:
+        node_norm = mcolors.Normalize(vmin=node_min, vmax=node_max)
+
     node_colors = []
-    for node in G.nodes(data=True):
-        node_type = node[1]['label']
-        color = "#f94144" if node_type == "User" else "#f3722c" if node_type == "Post" else "#577590"
-        node_colors.append(color)
+    for w in node_weights:
+        if w == 0:
+            node_colors.append("lightgray")
+        else:
+            node_colors.append(node_cmap(node_norm(w)))
 
-    # Dessiner les éléments
-    plt.figure(figsize=(10, 7))
-    nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=700)
-    nx.draw_networkx_edges(G, pos, width=widths, arrows=True, alpha=0.6)
-    nx.draw_networkx_labels(G, pos, font_size=10, font_color="white")
+    ### --- Arêtes ---
+    edge_styles = []
+    edge_widths = []
+    for u, v in G.edges():
+        w = G[u][v]["weight"]
+        edge_styles.append("dashed" if w < 0 else "solid")
+        edge_widths.append(1 + abs(w) * 4)  # Adapter le facteur selon rendu
 
-    # Ajouter les labels des arêtes (optionnel)
-    edge_labels = {(u, v): G[u][v]['label'] for u, v in G.edges()}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='gray')
+    edge_colors = ["gray" for _ in G.edges()]  # Toutes grises
 
-    plt.title("Graph Visualization with Matplotlib")
+    ### --- Dessin ---
+    plt.figure(figsize=(12, 8))
+    nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=800)
+    nx.draw_networkx_labels(G, pos, font_size=10, font_color='black')
+
+    # Tracer arêtes individuellement pour pouvoir styliser
+    for ((u, v), color, width, style) in zip(G.edges(), edge_colors, edge_widths, edge_styles):
+        nx.draw_networkx_edges(
+            G, pos,
+            edgelist=[(u, v)],
+            edge_color=color,
+            width=width,
+            style=style,
+            alpha=0.8,
+            arrows=True
+        )
+
+    # Labels des arêtes
+    edge_labels = {(u, v): G[u][v]["label"] for u, v in G.edges()}
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8)
+
+    plt.title("Graphe avec arêtes grises, styles selon signe, largeur selon intensité")
     plt.axis("off")
+    plt.savefig(output_path)
     plt.tight_layout()
-
-    # Enregistrer le graphe dans un fichier
-    plt.savefig(output_file, format="png", dpi=300)  # Format et résolution ajustables
-    print(f"Graphe enregistré dans : {output_file}")
-
-    # Afficher le graphe
     plt.show()
 
 # Exemple d'utilisation
-plot_graph_matplotlib("nodes.csv", "edges.csv", output_file="graph_output.png")
-
+plot_graph_custom("graph_info/nodes.csv", "graph_info/edges.csv", "graph_info/image_graphe.png")

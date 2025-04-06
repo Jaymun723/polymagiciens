@@ -1,0 +1,9 @@
+id,label,text_or_title,weight
+User_A,User,_,0
+User_B,User,_,0
+User_C,User,_,0
+User_D,user,_,0
+Post_1,Post,_,0.8
+Post_2,Post,_,0.9
+Post_3,Post,_,-0.7
+Post_4,Post,_,0.7
