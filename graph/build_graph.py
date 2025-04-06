@@ -62,13 +62,3 @@ def save_graph_to_csv(G: nx.DiGraph, nodes_csv: str, edges_csv: str):
     pd.DataFrame(edges_data).to_csv(edges_csv, index=False)
 
     print(f"Graph saved to:\n - {nodes_csv}\n - {edges_csv}")
-
-
-# if __name__ == "__main__":
-#     db = RedditDB()
-#     G = build_graph_from_db(db)
-#     save_graph_to_csv(G, "../graph_output/nodes.csv", "graph_info/edges.csv")
-
-#     print("Graph built!")
-#     print("Nodes:", G.number_of_nodes())
-#     print("Edges:", G.number_of_edges())
