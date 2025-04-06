@@ -281,7 +281,7 @@ class RedditDB:
         self.cur.execute(
             """
             SELECT * FROM "Comment"
-            WHERE post_id = %s, treated = FALSE;
+            WHERE post_id = %s AND treated = FALSE;
         """,
             (post_id,),
         )

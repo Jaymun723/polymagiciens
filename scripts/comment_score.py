@@ -1,11 +1,12 @@
 from graph.pg_reddit_driver import RedditDB
-from llms.match_score.comment_nli_cloud import comment_score as multiplier_score
+from llms.match_score.comment_nli import comment_score as multiplier_score
 
 
 def comment_score():
     db = RedditDB()
 
     posts = db.get_treated_posts_ordered_by_comments()
+    # print(posts)
 
     for p in posts:
         comments = db.get_comments_by_post_id(p[0])
