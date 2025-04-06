@@ -1,5 +1,7 @@
 # Polymagiciens
 
+> AI-powered system that detects fake news, maps influence networks, and identifies bad actors.
+
 ## Code structure
 
 ```
