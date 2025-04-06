@@ -1,5 +1,5 @@
 aws.bash
 Victor's Key.pem
-*.csv
 **/__pycache__/**
-*.pyc
+**/*.pyc
+llms/match_score/aws/

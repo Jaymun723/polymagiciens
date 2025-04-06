@@ -1,5 +1,34 @@
-from graph import process_most_commented, RedditDB
-from graph import RedditDB
+import argparse
+from scripts.scrap import scrap
+from scripts.post_score import post_score
+from scripts.comment_score import comment_score
 
-db = RedditDB()
-process_most_commented(db)
+# Mapping from CLI argument to actual function
+FUNCTION_MAP = {
+    "scrap": scrap,
+    "post-score": post_score,
+    "comment-score": comment_score,
+}
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Run a specific function from the scripts."
+    )
+    parser.add_argument(
+        "script", help="The script name to run (scrap, post-score, comment-score)"
+    )
+    args = parser.parse_args()
+
+    func = FUNCTION_MAP.get(args.script)
+    if func is None:
+        print(
+            f"Error: Unknown script '{args.script}'. Available options: {', '.join(FUNCTION_MAP.keys())}"
+        )
+        exit(1)
+
+    func()
+
+
+if __name__ == "__main__":
+    main()

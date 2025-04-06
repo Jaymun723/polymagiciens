@@ -64,6 +64,7 @@ class RedditDB:
                 author_id TEXT REFERENCES "User"(user_id),
                 title TEXT NOT NULL,
                 content TEXT,
+                subreddit TEXT NOT NULL,
                 upvotes INTEGER DEFAULT 0,
                 score INTEGER DEFAULT 50 CHECK (score BETWEEN 0 AND 100),
                 treated BOOLEAN DEFAULT FALSE,
@@ -89,6 +90,9 @@ class RedditDB:
         print("Tables ensured.")
 
     def add_user(self, user_id: str, user_name: str, score: int = 50):
+        print(
+            f"Inserted: User(user_di={user_id}, user_name={user_name}, score={score})"
+        )
         self.cur.execute(
             """
             INSERT INTO "User" (user_id, user_name, score)
@@ -99,24 +103,71 @@ class RedditDB:
         )
         self.conn.commit()
 
+    # def add_post(
+    #     self,
+    #     post_id: str,
+    #     author_id: str,
+    #     title: str,
+    #     content: str,
+    #     subreddit: str,
+    #     upvotes: int = 0,
+    #     score: int = 0,
+    #     treated: bool = False,
+    #     date=None,
+    # ):
+    #     self.cur.execute(
+    #         """INSERT INTO "Post" (post_id, author_id, title, content, upvotes, subreddit)
+    #         VALUES (%(post_id)s, %(author_id)s, %(title)s, %(content)s, %(upvotes)s, %(subreddit)s)
+    #         ON CONFLICT (post_id) DO NOTHING;""",
+    #         {
+    #             "post_id": post_id,
+    #             "author_id": author_id,
+    #             "title": title,
+    #             "content": content,
+    #             "upvotes": upvotes,
+    #             "subreddit": subreddit,
+    #         },
+    #     )
+    #     self.conn.commit()
+
     def add_post(
         self,
         post_id: str,
         author_id: str,
         title: str,
         content: str,
+        subreddit: str,
         upvotes: int = 0,
         score: int = 50,
         treated: bool = False,
         date=None,
     ):
+        print(
+            f"Inserted: Post(post_id={post_id}, author_id={author_id}, title={title}, content={content}, subreddit={subreddit}, upvotes={upvotes}, score={score}, treated={treated}, date={date})"
+        )
         self.cur.execute(
             """
-            INSERT INTO "Post" (post_id, author_id, title, content, upvotes, score, treated, date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))
+            INSERT INTO "Post" (
+                post_id, author_id, title, content, subreddit,
+                upvotes, score, treated, date
+            )
+            VALUES (
+                %(post_id)s, %(author_id)s, %(title)s, %(content)s, %(subreddit)s,
+                %(upvotes)s, %(score)s, %(treated)s, COALESCE(%(date)s, CURRENT_TIMESTAMP)
+            )
             ON CONFLICT (post_id) DO NOTHING;
-        """,
-            (post_id, author_id, title, content, upvotes, score, treated, date),
+            """,
+            {
+                "post_id": post_id,
+                "author_id": author_id,
+                "title": title,
+                "content": content,
+                "subreddit": subreddit,
+                "upvotes": upvotes,
+                "score": score,
+                "treated": treated,
+                "date": date,
+            },
         )
         self.conn.commit()
 
@@ -131,13 +182,31 @@ class RedditDB:
         treated: bool = False,
         date=None,
     ):
+        print(
+            f"Inserted: Comment(comment_id={comment_id},author_id={author_id},post_id={post_id},content={content},upvotes={upvotes},score={score},treated={treated},date={date})"
+        )
         self.cur.execute(
             """
-            INSERT INTO "Comment" (comment_id, author_id, post_id, content, upvotes, score, treated, date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))
+            INSERT INTO "Comment" (
+                comment_id, author_id, post_id, content,
+                upvotes, score, treated, date
+            )
+            VALUES (
+                %(comment_id)s, %(author_id)s, %(post_id)s, %(content)s,
+                %(upvotes)s, %(score)s, %(treated)s, COALESCE(%(date)s, CURRENT_TIMESTAMP)
+            )
             ON CONFLICT (comment_id) DO NOTHING;
-        """,
-            (comment_id, author_id, post_id, content, upvotes, score, treated, date),
+            """,
+            {
+                "comment_id": comment_id,
+                "author_id": author_id,
+                "post_id": post_id,
+                "content": content,
+                "upvotes": upvotes,
+                "score": score,
+                "treated": treated,
+                "date": date,
+            },
         )
         self.conn.commit()
 
@@ -152,6 +221,15 @@ class RedditDB:
     def get_post(self, post_id: str):
         self.cur.execute("""SELECT * FROM "Post" WHERE post_id = %s""", (post_id,))
         return self.cur.fetchone()
+
+    def get_treated_posts(self):
+        self.cur.execute(
+            """
+            SELECT * FROM "Post"
+            WHERE treated = TRUE;
+        """
+        )
+        return self.cur.fetchall()
 
     def mark_post_as_treated(self, post_id: str):
         self.cur.execute(
@@ -179,25 +257,35 @@ class RedditDB:
         self.cur.execute(
             """
             UPDATE "Comment"
-            SET score = %s
+            SET score = %s, treated = TRUE
             WHERE comment_id = %s;
         """,
             (new_score, comment_id),
         )
         self.conn.commit()
 
-    def get_posts_comments(self, post_id: str):
+    def get_treated_posts_ordered_by_comments(self):
         self.cur.execute(
-            """SELECT * FROM "Comment" WHERE post_id = %s""",
-            (post_id,),
+            """
+            SELECT p.*, COUNT(c.comment_id) AS comment_count
+            FROM "Post" p
+            LEFT JOIN "Comment" c ON p.post_id = c.post_id
+            WHERE p.treated = TRUE
+            GROUP BY p.post_id
+            ORDER BY comment_count DESC;
+        """
         )
         return self.cur.fetchall()
 
-    def get_posts_comments_count(self, post_id: str) -> int:
+    def get_comments_by_post_id(self, post_id: str):
         self.cur.execute(
-            """SELECT count(*) FROM "Comment" WHERE post_id = %s""", (post_id,)
+            """
+            SELECT * FROM "Comment"
+            WHERE post_id = %s AND treated = FALSE;
+        """,
+            (post_id,),
         )
-        return self.cur.fetchone()
+        return self.cur.fetchall()
 
     def get_most_commented_unprocessed_post(self, limit=1):
         self.cur.execute(
@@ -210,11 +298,18 @@ class RedditDB:
             LIMIT %s;""",
             (limit,),
         )
-        return self.cur.fetchone()
+        return self.cur.fetchall()
 
     def get_posts(self):
         self.cur.execute("""SELECT * FROM "Post";""")
         return self.cur.fetchall()
+
+    def post_exists(self, post_id: str) -> bool:
+        self.cur.execute(
+            """SELECT 1 FROM "Post" WHERE post_id = %s;""",
+            (post_id,),
+        )
+        return self.cur.fetchone() is not None
 
     def get_comment(self, comment_id: str):
         self.cur.execute(
