@@ -4,6 +4,7 @@ import networkx as nx
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
+
 def plot_graph_custom(nodes_csv, edges_csv, output_path):
     # Charger les fichiers
     nodes_df = pd.read_csv(nodes_csv)
@@ -30,7 +31,7 @@ def plot_graph_custom(nodes_csv, edges_csv, output_path):
     node_weights = [G.nodes[n]["weight"] for n in G.nodes()]
     node_min, node_max = min(node_weights), max(node_weights)
 
-    node_cmap = cm.get_cmap('bwr')
+    node_cmap = cm.get_cmap("bwr")
     if node_min < 0 and node_max > 0:
         node_norm = mcolors.TwoSlopeNorm(vmin=node_min, vcenter=0, vmax=node_max)
     else:
@@ -56,18 +57,21 @@ def plot_graph_custom(nodes_csv, edges_csv, output_path):
     ### --- Dessin ---
     plt.figure(figsize=(12, 8))
     nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=800)
-    nx.draw_networkx_labels(G, pos, font_size=10, font_color='black')
+    nx.draw_networkx_labels(G, pos, font_size=10, font_color="black")
 
     # Tracer arêtes individuellement pour pouvoir styliser
-    for ((u, v), color, width, style) in zip(G.edges(), edge_colors, edge_widths, edge_styles):
+    for (u, v), color, width, style in zip(
+        G.edges(), edge_colors, edge_widths, edge_styles
+    ):
         nx.draw_networkx_edges(
-            G, pos,
+            G,
+            pos,
             edgelist=[(u, v)],
             edge_color=color,
             width=width,
             style=style,
             alpha=0.8,
-            arrows=True
+            arrows=True,
         )
 
     # Labels des arêtes
@@ -80,5 +84,6 @@ def plot_graph_custom(nodes_csv, edges_csv, output_path):
     plt.tight_layout()
     plt.show()
 
+
 # Exemple d'utilisation
-plot_graph_custom("graph_info/nodes.csv", "graph_info/edges.csv", "graph_info/image_graphe.png")
+plot_graph_custom("nodes.csv", "edges.csv", "image_graphe.png")
