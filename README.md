@@ -1,11 +1,11 @@
-# Polymagiciens
+# FakeNet 
 
 > AI-powered system that detects fake news, maps influence networks, and identifies bad actors.
 
 ## Code structure
 
 ```
-polymagiciens
+FakeNet
 ├── graph
 │   ├── build_graph.py # Read graph from the database and outputs in csv
 │   ├── lissage.py # Apply "lissage" procedure to the nodes
