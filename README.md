@@ -38,7 +38,7 @@ polymagiciens
 
 - Main code run on a **EC2** instance.
 - Database on **PostgreSQL** : **AWS RDS**
-- AI model on **aws SageMaker AI** endpoint
+- AI model on **AWS SageMaker AI** endpoint
 - AI agents using **Mistral** trainned with **NeMo**.
 
 ## Usage
