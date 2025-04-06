@@ -269,10 +269,11 @@ class RedditDB:
             """
             SELECT p.*, COUNT(c.comment_id) AS comment_count
             FROM "Post" p
-            LEFT JOIN "Comment" c ON p.post_id = c.post_id
-            WHERE p.treated = TRUE AND comment_count <> 0
+            JOIN "Comment" c ON p.post_id = c.post_id
+            WHERE p.treated = TRUE
             GROUP BY p.post_id
-            ORDER BY random();
+            HAVING COUNT(c.comment_id) > 0
+            ORDER BY RANDOM();
         """
         )
         return self.cur.fetchall()
