@@ -10,6 +10,7 @@ def comment_score():
 
     for p in posts:
         comments = db.get_comments_by_post_id(p[0])
+        print(f"Post {p[0]} has {len(comments)} attached.")
         for comment in comments:
             post_str = f"Title: {p[2]}\n{p[3]}"
             comment_str = comment[3]
