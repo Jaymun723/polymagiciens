@@ -1,11 +1,12 @@
 from graph.pg_reddit_driver import RedditDB
-from llms.match_score.comment_nli import comment_score as multiplier_score
 from graph.reddit import RedditWrapper
 from graph.threading_scrapper import ThreadedScraper
 import praw
 
 
 def comment_score():
+    from llms.match_score.comment_nli import comment_score as multiplier_score
+
     db = RedditDB()
     reddit = praw.Reddit("bot1", user_agent="polymagiciens bot1")
     wrapper = RedditWrapper(db, reddit)
@@ -29,6 +30,6 @@ def comment_score():
     scrapper = ThreadedScraper(process_fn, max_workers=32)
 
     for p in posts:
-       scrapper.process_post(p)
+        scrapper.process_post(p)
 
     scrapper.wait_all()

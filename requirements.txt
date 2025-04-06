@@ -11,3 +11,6 @@ torch
 torchvision
 torchaudio
 transformers
+networkx
+matplotlib
+scipy

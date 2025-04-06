@@ -3,3 +3,4 @@ Victor's Key.pem
 **/__pycache__/**
 **/*.pyc
 llms/match_score/aws/
+*.csv

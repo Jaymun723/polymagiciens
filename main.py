@@ -2,12 +2,14 @@ import argparse
 from scripts.scrap import scrap
 from scripts.post_score import post_score
 from scripts.comment_score import comment_score
+from scripts.build_graph import build_graph
 
 # Mapping from CLI argument to actual function
 FUNCTION_MAP = {
     "scrap": scrap,
     "post-score": post_score,
     "comment-score": comment_score,
+    "build-graph": build_graph,
 }
 
 

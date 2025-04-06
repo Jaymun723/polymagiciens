@@ -1,9 +1,0 @@
-id,label,text_or_title,weight
-User_A,User,_,0.3766666666666667
-User_B,User,_,0.3175
-User_C,User,_,-0.335
-User_D,user,_,-0.01333333333333333
-Post_1,Post,_,0.4
-Post_2,Post,_,0.45
-Post_3,Post,_,-0.35
-Post_4,Post,_,0.35
