@@ -16,9 +16,9 @@ polymagiciens
 │   │   ├── agent_is_relevant.py
 │   │   └── agent_to_wikipedia.py
 │   ├── match_score
-│   │   ├── comment_nli.py
-│   │   ├── comment_nli_cloud.py
-│   │   └── deployer_aws_sagemaker.py # Helper file to deploy code to aws sagemaker
+│   │   ├── comment_nli.py # Run "roberta" model localy
+│   │   ├── comment_nli_cloud.py # Run "roberta" model on AWS SageMaker
+│   │   └── deployer_aws_sagemaker.py # Helper file to deploy code to AWS SageMaker
 │   ├── request_factcheck.py
 │   └── request_to_agent.py
 ├── output
