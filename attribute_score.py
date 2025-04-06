@@ -40,7 +40,7 @@ def main():
         else:
             print("It's not intresting.")
 
-    scrapper = ThreadedScraper(process_post, max_workers=None)
+    scrapper = ThreadedScraper(process_post, max_workers=32)
 
     for p in sub.controversial(time_filter="month", limit=100):
         scrapper.process_post(p)
