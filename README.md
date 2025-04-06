@@ -21,33 +21,30 @@ polymagiciens
 │   │   └── deployer_aws_sagemaker.py # Helper file to deploy code to AWS SageMaker
 │   ├── request_factcheck.py
 │   └── request_to_agent.py
-├── output
-│   ├── edges.csv
-│   └── nodes.csv
+├── output # Contains csv, and graph visualisation
+│   └── ...
 ├── scripts
-│   ├── build_graph.py
-│   ├── comment_score.py
-│   ├── display_graph.py
-│   ├── post_score.py
-│   └── scrap.py
-├── README.md
-├── Victor's Key.pem
-├── aws.bash
-├── edges.csv
-├── main.py
-├── nodes.csv
+│   ├── build_graph.py # Build graph nodes & edges csv
+│   ├── comment_score.py # Compute the score of the comments
+│   ├── display_graph.py # Create the visualisation of the graph
+│   ├── post_score.py # Compute the score of the posts
+│   └── scrap.py # Scrap reddit
+├── README.md # This !
+├── main.py # Entry file
 └── requirements.txt
 ```
 
-In the `graph` folder there is the code in charge of scrapping reddit, adding the users, posts and comments to the database (`pg_reddit_driver.py` and `reddit.py`). There are also visualisation code: `create_graph.py` and `write_csv.py`.
-
-In the `llms` folder there is the code in charge of evaluating if a post is misinformation or not (`request_factcheck.py` and `request_to_agent.py`) and the code giving a score for a comment based on the post (code inside `match_score`).
-
-In the `scripts` folder there are the programs scrapping reddit and the ones computing the scores of the posts and the comments.
-
 ## The stack
 
-- Main code run on a EC2 instance.
-- Database on PostgreSQL : AWS RDS
-- AI model on SageMaker endpoint
-- AI agents using Mistral trainned with NeMo.
+- Main code run on a **EC2** instance.
+- Database on **PostgreSQL** : **AWS RDS**
+- AI model on **aws SageMaker AI** endpoint
+- AI agents using **Mistral** trainned with **NeMo**.
+
+## Usage
+
+You must first setup environement variables for AWS and Mistral and PostgreSQL connection.
+
+```sh
+python main.py script-name
+```
