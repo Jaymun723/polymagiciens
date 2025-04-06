@@ -1,12 +1,12 @@
 import argparse
 from scripts.scrap import scrap
-from scripts.attribute_score import attribute_score
+from scripts.post_score import post_score
 from scripts.comment_score import comment_score
 
 # Mapping from CLI argument to actual function
 FUNCTION_MAP = {
     "scrap": scrap,
-    "attribute-score": attribute_score,
+    "post-score": post_score,
     "comment-score": comment_score,
 }
 
@@ -16,7 +16,7 @@ def main():
         description="Run a specific function from the scripts."
     )
     parser.add_argument(
-        "script", help="The script name to run (e.g., scrap or attribute-score)"
+        "script", help="The script name to run (scrap, post-score, comment-score)"
     )
     args = parser.parse_args()
 

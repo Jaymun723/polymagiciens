@@ -5,7 +5,7 @@ from llms import compute_post_score, is_post_interesting
 import praw
 
 
-def attribute_score():
+def post_score():
     db = RedditDB()
     reddit = praw.Reddit("bot1", user_agent="polymagiciens bot1")
     wrapper = RedditWrapper(db, reddit)
@@ -19,7 +19,7 @@ def attribute_score():
         db.mark_post_as_treated(post[0])
 
         if is_post_interesting(post):
-            wrapper.treat_submission(p, 40, 10)
+            # wrapper.treat_submission(p, 40, 10)
             print("It's intresting !")
             print(post[2])
             score = compute_post_score(post)
