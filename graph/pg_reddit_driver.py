@@ -270,9 +270,9 @@ class RedditDB:
             SELECT p.*, COUNT(c.comment_id) AS comment_count
             FROM "Post" p
             LEFT JOIN "Comment" c ON p.post_id = c.post_id
-            WHERE p.treated = TRUE
+            WHERE p.treated = TRUE AND comment_count <> 0
             GROUP BY p.post_id
-            ORDER BY comment_count DESC;
+            ORDER BY random();
         """
         )
         return self.cur.fetchall()
