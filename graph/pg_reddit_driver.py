@@ -298,7 +298,7 @@ class RedditDB:
             LIMIT %s;""",
             (limit,),
         )
-        return self.cur.fetchone()
+        return self.cur.fetchall()
 
     def get_posts(self):
         self.cur.execute("""SELECT * FROM "Post";""")

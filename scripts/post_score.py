@@ -13,7 +13,7 @@ def post_score():
     sub = reddit.subreddit("news")
 
     def process_post(p):
-        post = db.get_post(p.id)
+        post = db.get_post(p["id"])
 
         if post:
             db.mark_post_as_treated(post[0])
@@ -28,6 +28,7 @@ def post_score():
     #     scrapper.process_post(p)
 
     for p in db.get_most_commented_unprocessed_post():
-        scrapper.process_post({id: p[0]})
+        # print(p)
+        scrapper.process_post({"id": p[0]})
 
     scrapper.wait_all()
