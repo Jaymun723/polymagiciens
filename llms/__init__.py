@@ -1,15 +1,12 @@
 from llms.Fact_check_v2 import post_to_grade
-from llms.llm_relevancy_deg import requete_is_relevant
+import llms.agents_config.agent_is_relevant as agent1
+from llms.request_to_agent import request_to_agent
 
 
 def is_post_intresting(post):
-    post_title = post[2]
-    post_content = post[3]
-    post_subreddit = post[4]
-
-    query = f"The post was posted on {post_subreddit}\nTitle: {post_title}\nContent: {post_content}"
-
-    return requete_is_relevant(query)
+    post_title = post["title"]
+    post_content = post["content"]
+    return request_to_agent(post_title + " " + post_content, agent1)
 
 
 def compute_post_score(post):
