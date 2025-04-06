@@ -11,6 +11,7 @@ FUNCTION_MAP = {
     "post-score": post_score,
     "comment-score": comment_score,
     "build-graph": build_graph,
+    "display-graph": display_graph,
 }
 
 
