@@ -45,7 +45,7 @@ FakeNet
 
 ## Usage
 
-You must first setup environement variables for AWS and Mistral and PostgreSQL connection.
+You must first setup environnement variables for AWS and Mistral and PostgreSQL connection.
 
 ```sh
 python main.py script-name
