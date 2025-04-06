@@ -92,7 +92,6 @@ class RedditWrapper:
 
         user = User(u.id, u.name)
 
-        print("Added user " + user.name + " (id " + user.id + ")")
         self.db.add_user(user.id, user.name)
 
     def add_post(self, p):
@@ -114,16 +113,6 @@ class RedditWrapper:
         )
 
         self.add_user(p.author)
-        print(
-            "Added post "
-            + post.id
-            + " by "
-            + post.author_id
-            + ': "'
-            + post.title
-            + '" content '
-            + post.content
-        )
         self.db.add_post(
             post.id,
             post.author_id,
@@ -156,14 +145,6 @@ class RedditWrapper:
         self.add_user(c.author)
         # self.add_post(self.reddit.submission(c.parent_id[3:]))
 
-        print(
-            "Added comment on post "
-            + comment.post_id
-            + " by "
-            + comment.author_id
-            + " content "
-            + comment.content
-        )
         self.db.add_comment(
             comment.id,
             comment.author_id,
@@ -182,19 +163,18 @@ class RedditWrapper:
         self.add_user(u)
 
         for s in u.submissions.top(limit=n_posts):
+            print(f"Treating submission: {s.id}")
             self.treat_submission(s, depth - 1)
 
     def treat_submission(self, s, depth, n_comments=100, save_post=True):
         if depth < 0:
             return
 
-        # print("Post with", len(s.comments), "named", s.title)
-
         if save_post:
             self.add_post(s)
 
-        # print ("Post has", len(s.comments), "comments")
         for i in range(min(n_comments, len(s.comments))):
+            print(f"Treating comment: {s.comments[i].id}")
             self.treat_comment(s.comments[i], depth - 1)
 
     def treat_comment(self, c, depth):
@@ -209,7 +189,11 @@ class RedditWrapper:
             return
 
         self.add_comment(c)
-        self.treat_user(c.author, depth - 1)
+
+        if c.author:
+            if hasattr(c.author, "id"):
+                print(f"Treating user: {c.author.id}")
+                self.treat_user(c.author, depth - 1)
 
 
 class RedditScraper:
