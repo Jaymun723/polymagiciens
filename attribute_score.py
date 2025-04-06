@@ -28,10 +28,10 @@ def main():
     sub = reddit.subreddit("news")
 
     def process_post(p):
-        wrapper.treat_submission(p, 40, 10)
         print("Finished tree")
         post = db.get_post(p.id)
         if is_post_interesting(post):
+            wrapper.treat_submission(p, 40, 10)
             print("It's intresting !")
             print(post[2])
             score = compute_post_score(post)
