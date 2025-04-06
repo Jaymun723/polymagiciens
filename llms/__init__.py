@@ -10,7 +10,6 @@ def is_post_interesting(post):
     query = f"Title: {post_title}\n{post_content}"
 
     answer = request_to_agent(query, agent1)
-    print(f"Interesting answer: {answer}")
 
     return float(answer) >= 0.5
 

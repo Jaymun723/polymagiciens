@@ -24,7 +24,10 @@ def post_score():
 
     scrapper = ThreadedScraper(process_post, max_workers=32)
 
-    for p in sub.controversial(time_filter="month", limit=100):
+    # for p in sub.controversial(time_filter="month", limit=100):
+    #     scrapper.process_post(p)
+
+    for p in db.get_most_commented_unprocessed_post():
         scrapper.process_post(p)
 
     scrapper.wait_all()
