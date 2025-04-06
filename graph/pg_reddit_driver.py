@@ -222,6 +222,15 @@ class RedditDB:
         self.cur.execute("""SELECT * FROM "Post" WHERE post_id = %s""", (post_id,))
         return self.cur.fetchone()
 
+    def get_treated_posts(self):
+        self.cur.execute(
+            """
+            SELECT * FROM "Post"
+            WHERE treated = TRUE;
+        """
+        )
+        return self.cur.fetchall()
+
     def mark_post_as_treated(self, post_id: str):
         self.cur.execute(
             """
@@ -248,25 +257,35 @@ class RedditDB:
         self.cur.execute(
             """
             UPDATE "Comment"
-            SET score = %s
+            SET score = %s, treated = TRUE
             WHERE comment_id = %s;
         """,
             (new_score, comment_id),
         )
         self.conn.commit()
 
-    def get_posts_comments(self, post_id: str):
+    def get_treated_posts_ordered_by_comments(self):
         self.cur.execute(
-            """SELECT * FROM "Comment" WHERE post_id = %s""",
-            (post_id,),
+            """
+            SELECT p.*, COUNT(c.comment_id) AS comment_count
+            FROM "Post" p
+            LEFT JOIN "Comment" c ON p.post_id = c.post_id
+            WHERE p.treated = TRUE
+            GROUP BY p.post_id
+            ORDER BY comment_count DESC;
+        """
         )
         return self.cur.fetchall()
 
-    def get_posts_comments_count(self, post_id: str) -> int:
+    def get_comments_by_post_id(self, post_id: str):
         self.cur.execute(
-            """SELECT count(*) FROM "Comment" WHERE post_id = %s""", (post_id,)
+            """
+            SELECT * FROM "Comment"
+            WHERE post_id = %s, treated = FALSE;
+        """,
+            (post_id,),
         )
-        return self.cur.fetchone()
+        return self.cur.fetchall()
 
     def get_most_commented_unprocessed_post(self, limit=1):
         self.cur.execute(
