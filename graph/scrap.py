@@ -11,17 +11,25 @@ def scrap():
 
     posts = db.get_posts()
 
-    # sub = reddit.subreddit("news")
-
     def save_post(p):
-        wrapper.treat_submission(p, 100, 100)
+        wrapper.treat_submission(p, 100, 100, save_post=False)
 
     scrapper = ThreadedScraper(save_post, None)
+
+    for post in posts:
+        p = reddit.submission(post[0])
+        scrapper.process_post(p)
+
+    # sub = reddit.subreddit("news")
+
+    # def save_post(p):
+    #     wrapper.treat_submission(p, 100, 100, save_post=False)
 
     # for p in sub.controversial(time_filter="week", limit=100):
     #     scrapper.process_post(p)
 
-    for post in posts:
-        p = reddit.models.Submission(post.id)
+    # for post in posts:
+    #     p = reddit.submission(post[0])
+    #     save_post(p)
 
     scrapper.wait_all()

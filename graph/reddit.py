@@ -77,9 +77,18 @@ class RedditWrapper:
         self.db = db
         self.reddit = reddit
 
+        self.users_set = {}
+        self.posts_set = {}
+        self.comments_set = {}
+
     def add_user(self, u):
         if not hasattr(u, "id"):
             return
+
+        if u.id in self.users_set:
+            return
+        else:
+            self.users_set[u.id] = u.id
 
         user = User(u.id, u.name)
 
@@ -90,8 +99,10 @@ class RedditWrapper:
         if not p.author:
             return
 
-        if self.db.post_exists(p.id):
+        if p.id in self.posts_set:
             return
+        else:
+            self.posts_set[p.id] = p.id
 
         post = Post(
             p.id,
@@ -128,6 +139,11 @@ class RedditWrapper:
 
         if not hasattr(c.author, "id"):
             return
+
+        if c.id in self.comments_set:
+            return
+        else:
+            self.comments_set[c.id] = c.id
 
         comment = Comment(
             c.id,
@@ -168,13 +184,14 @@ class RedditWrapper:
         for s in u.submissions.top(limit=n_posts):
             self.treat_submission(s, depth - 1)
 
-    def treat_submission(self, s, depth, n_comments=100):
+    def treat_submission(self, s, depth, n_comments=100, save_post=True):
         if depth < 0:
             return
 
         # print("Post with", len(s.comments), "named", s.title)
 
-        self.add_post(s)
+        if save_post:
+            self.add_post(s)
 
         # print ("Post has", len(s.comments), "comments")
         for i in range(min(n_comments, len(s.comments))):
