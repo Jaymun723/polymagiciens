@@ -1,10 +1,34 @@
-import llms.agents_config.agent_is_relevant as agent1
-from llms.request_to_agent import request_to_agent 
+import argparse
+from scripts.scrap import scrap
+from scripts.post_score import post_score
+from scripts.comment_score import comment_score
+
+# Mapping from CLI argument to actual function
+FUNCTION_MAP = {
+    "scrap": scrap,
+    "post-score": post_score,
+    "comment-score": comment_score,
+}
 
 
-print(request_to_agent("one minute of eye-spiced twerking", agent1))
-print(request_to_agent("La Terre est plate et la NASA cache la vérité.", agent1))
-print(request_to_agent("Le changement climatique est un mythe inventé par les scientifiques.", agent1))
-print(request_to_agent("le uno c'est vraiment un jeu de merde", agent1))
-print(request_to_agent("trump augment les impots", agent1))
-print(request_to_agent("gaza: attaque de l'armée israélienne", agent1))
+def main():
+    parser = argparse.ArgumentParser(
+        description="Run a specific function from the scripts."
+    )
+    parser.add_argument(
+        "script", help="The script name to run (scrap, post-score, comment-score)"
+    )
+    args = parser.parse_args()
+
+    func = FUNCTION_MAP.get(args.script)
+    if func is None:
+        print(
+            f"Error: Unknown script '{args.script}'. Available options: {', '.join(FUNCTION_MAP.keys())}"
+        )
+        exit(1)
+
+    func()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,4 +1,4 @@
-import asyncpraw
+# import asyncpraw
 import praw
 import psycopg
 from psycopg import sql

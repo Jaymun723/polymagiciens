@@ -3,13 +3,15 @@ import llms.agents_config.agent_is_relevant as agent1
 from llms.request_to_agent import request_to_agent
 
 
-def is_post_intresting(post):
+def is_post_interesting(post):
     post_title = post[2]
     post_content = post[3]
 
     query = f"Title: {post_title}\n{post_content}"
 
-    return request_to_agent(query, agent1)
+    answer = request_to_agent(query, agent1)
+
+    return float(answer) >= 0.5
 
 
 def compute_post_score(post):

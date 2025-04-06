@@ -33,6 +33,3 @@ def scrap():
     #     save_post(p)
 
     scrapper.wait_all()
-
-
-scrap()
