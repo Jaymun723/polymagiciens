@@ -1,9 +1,11 @@
-# Polymagiciens
+# FakeNet 
+
+> AI-powered system that detects fake news, maps influence networks, and identifies bad actors.
 
 ## Code structure
 
 ```
-polymagiciens
+FakeNet
 ├── graph
 │   ├── build_graph.py # Read graph from the database and outputs in csv
 │   ├── lissage.py # Apply "lissage" procedure to the nodes
@@ -38,7 +40,7 @@ polymagiciens
 
 - Main code run on a **EC2** instance.
 - Database on **PostgreSQL** : **AWS RDS**
-- AI model on **aws SageMaker AI** endpoint
+- AI model on **AWS SageMaker AI** endpoint
 - AI agents using **Mistral** trainned with **NeMo**.
 
 ## Usage
