@@ -10,6 +10,6 @@ def investigate_user():
 
     user_id = input("Entre the user id:")
 
-    u = reddit.user(user_id)
+    u = reddit.redditor(user_id)
 
     wrapper.treat_user(u, 10, 10)
