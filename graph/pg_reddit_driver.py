@@ -90,6 +90,9 @@ class RedditDB:
         print("Tables ensured.")
 
     def add_user(self, user_id: str, user_name: str, score: int = 50):
+        print(
+            f"Inserted: User(user_di={user_id}, user_name={user_name}, score={score})"
+        )
         self.cur.execute(
             """
             INSERT INTO "User" (user_id, user_name, score)
@@ -140,7 +143,7 @@ class RedditDB:
         date=None,
     ):
         print(
-            post_id, author_id, title, content, subreddit, upvotes, score, treated, date
+            f"Inserted: Post(post_id={post_id}, author_id={author_id}, title={title}, content={content}, subreddit={subreddit}, upvotes={upvotes}, score={score}, treated={treated}, date={date})"
         )
         self.cur.execute(
             """
@@ -179,6 +182,9 @@ class RedditDB:
         treated: bool = False,
         date=None,
     ):
+        print(
+            f"Inserted: Comment(comment_id={comment_id},author_id={author_id},post_id={post_id},content={content},upvotes={upvotes},score={score},treated={treated},date={date})"
+        )
         self.cur.execute(
             """
             INSERT INTO "Comment" (
