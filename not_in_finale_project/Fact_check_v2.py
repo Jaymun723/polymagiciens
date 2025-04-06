@@ -6,18 +6,11 @@ import json
 from datetime import datetime
 import concurrent.futures  # ⬅️ Ajout pour paralléliser
 
-# Initialize the Mistral client
-client = Mistral(
-    api_key="OZSyUAoFi2DmsjJz5Cuqg8vWeFzG9grq",
-)
-
 def search_wikipedia(query):
     try:
-        # Rechercher sur Wikipedia en fonction du texte de la requête
-        search_results = wikipedia.search(query, results=5)  # Retourne les 5 premiers résultats
+        search_results = wikipedia.search(query, results=5) 
         return search_results
     except wikipedia.exceptions.DisambiguationError as e:
-        # Si plusieurs articles existent, on récupère la liste d'articles possibles
         return e.options
     except wikipedia.exceptions.HTTPTimeoutError:
         return ["Timeout error, please try again later."]
