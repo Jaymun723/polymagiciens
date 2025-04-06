@@ -30,6 +30,9 @@ def main():
     def process_post(p):
         print("Finished tree")
         post = db.get_post(p.id)
+
+        db.mark_post_as_treated(post[0])
+
         if is_post_interesting(post):
             wrapper.treat_submission(p, 40, 10)
             print("It's intresting !")
