@@ -8,7 +8,7 @@ def investigate_user():
     db = RedditDB()
     wrapper = RedditWrapper(db, reddit)
 
-    user_id = input("Entre the user id:")
+    user_id = input("Entre the username:")
 
     u = reddit.redditor(user_id)
 
