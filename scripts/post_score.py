@@ -15,11 +15,12 @@ def post_score():
     def process_post(p):
         post = db.get_post(p.id)
 
-        db.mark_post_as_treated(post[0])
+        if post:
+            db.mark_post_as_treated(post[0])
 
-        if is_post_interesting(post):
-            score = compute_post_score(post)
-            db.update_post_score(post[0], score)
+            if is_post_interesting(post):
+                score = compute_post_score(post)
+                db.update_post_score(post[0], score)
 
     scrapper = ThreadedScraper(process_post, max_workers=32)
 
