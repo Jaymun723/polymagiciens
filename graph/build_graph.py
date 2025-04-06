@@ -67,7 +67,7 @@ def save_graph_to_csv(G: nx.DiGraph, nodes_csv: str, edges_csv: str):
 if __name__ == "__main__":
     db = RedditDB()
     G = build_graph_from_db(db)
-    save_graph_to_csv(G, "nodes.csv", "edges.csv")
+    save_graph_to_csv(G, "graph_info/nodes.csv", "graph_info/edges.csv")
 
     print("Graph built!")
     print("Nodes:", G.number_of_nodes())
