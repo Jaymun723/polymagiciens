@@ -4,6 +4,7 @@ from scripts.post_score import post_score
 from scripts.comment_score import comment_score
 from scripts.build_graph import build_graph
 from scripts.display_graph import display_graph
+from scripts.investigate_user import investigate_user
 
 # Mapping from CLI argument to actual function
 FUNCTION_MAP = {
@@ -12,6 +13,7 @@ FUNCTION_MAP = {
     "comment-score": comment_score,
     "build-graph": build_graph,
     "display-graph": display_graph,
+    "investigate-user": investigate_user,
 }
 
 
