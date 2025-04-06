@@ -27,7 +27,7 @@ def post_score():
     # for p in sub.controversial(time_filter="month", limit=100):
     #     scrapper.process_post(p)
 
-    for p in db.get_most_commented_unprocessed_post():
+    for p in db.get_most_commented_unprocessed_post(limit=2000):
         # print(p)
         scrapper.process_post({"id": p[0]})
 
